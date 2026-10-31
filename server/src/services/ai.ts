@@ -19,7 +19,7 @@ export interface AiResult {
 }
 
 export class AiError extends Error {
-  constructor(public kind: 'busy' | 'auth' | 'credits' | 'other', message: string) {
+  constructor(public kind: 'busy' | 'auth' | 'credits' | 'model' | 'other', message: string) {
     super(message);
   }
 }
@@ -36,8 +36,11 @@ export async function complete(system: string, turns: ChatTurn[]): Promise<AiRes
 
 // ---------- OpenRouter (OpenAI-style chat completions)
 async function openRouter(system: string, turns: ChatTurn[]): Promise<AiResult> {
+  const models = config.openrouterModels;
+  // Nemotron models "think" out loud by default; /no_think keeps answers short and inside the token cap.
+  const sys = models.some((m) => m.includes('nemotron')) ? `${system}\n/no_think` : system;
   const messages = [
-    { role: 'system', content: system },
+    { role: 'system', content: sys },
     ...turns.map((t) =>
       t.imageBase64Jpeg
         ? {
@@ -59,7 +62,8 @@ async function openRouter(system: string, turns: ChatTurn[]): Promise<AiResult> 
         'Content-Type': 'application/json',
         'X-Title': 'Market Quest',
       },
-      body: JSON.stringify({ model: config.openrouterModel, messages, max_tokens: config.aiMaxTokens }),
+      // `models` = OpenRouter fallback routing: if the first is down or rate-limited, it tries the next.
+      body: JSON.stringify({ model: models[0], ...(models.length > 1 ? { models } : {}), messages, max_tokens: config.aiMaxTokens, reasoning: { exclude: true } }),
       signal: AbortSignal.timeout(60_000),
     });
   } catch {
@@ -71,13 +75,15 @@ async function openRouter(system: string, turns: ChatTurn[]): Promise<AiResult> 
     if (status === 401 || status === 403) throw new AiError('auth', 'OpenRouter key rejected.');
     if (status === 402) throw new AiError('credits', 'OpenRouter account is out of credits.');
     if (status === 429 || status >= 500) throw new AiError('busy', 'OpenRouter is busy.');
+    if ((status === 400 || status === 404) && /model/i.test(String(data?.error?.message))) throw new AiError('model', String(data?.error?.message));
     throw new AiError('other', data?.error?.message ?? `OpenRouter error ${status}`);
   }
   const choice = data?.choices?.[0];
   const content = choice?.message?.content;
   const text = typeof content === 'string' ? content : Array.isArray(content) ? content.map((c: any) => c?.text ?? '').join('') : '';
   return {
-    text: text.trim(),
+    // Some models still wrap private reasoning in <think> tags; never show that to the trader.
+    text: text.replace(/<think>[\s\S]*?(<\/think>|$)/g, '').trim(),
     truncated: choice?.finish_reason === 'length',
     refused: choice?.finish_reason === 'content_filter',
     tokens: (data?.usage?.prompt_tokens ?? 0) + (data?.usage?.completion_tokens ?? 0),

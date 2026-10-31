@@ -988,30 +988,6 @@ You will miss some breakouts. That's fine. Missing a move costs you nothing; cha
 ## Warrior's rule
 
 **Edges, not middles. Retests, not spikes.**$mq$, $mq$[{"q":"Where should a beginner look for longs inside a range?","options":["In the middle","Near the floor (support)","Near the ceiling","Anywhere"],"answer":1,"why":"Buy near the floor, sell near the ceiling, skip the middle."},{"q":"Why avoid trading the middle of a range?","options":["It is illegal","Poor RR and random direction","Spreads are higher","Brokers block it"],"answer":1,"why":"From the middle, both edges are close: low RR and no edge."},{"q":"What is a fakeout?","options":["A strong trend","A break beyond a level that quickly reverses back inside","A news release","A trendline"],"answer":1,"why":"Fakeouts trap traders who chase the first break."},{"q":"Safer beginner breakout entry:","options":["Buy the first spike","Wait for a close beyond the level, then enter on the retest","Enter before the break","Double the size"],"answer":1,"why":"Close + retest filters many fakeouts."},{"q":"You missed a breakout. What did it cost you?","options":["Your account","Nothing: missing a move is free, chasing one is not","Your streak","XP"],"answer":1,"why":"Missed trades cost nothing. Forced trades cost HP."}]$mq$::jsonb, 80, 10, false),
-($mq$z3-entry-checklist$mq$, 3, 1, $mq$The 3-Check Entry$mq$, $mq$This lesson is still being forged.
-
-## What it will cover
-
-- Trend, level, reaction: the three checks before any entry
-- Why the Battle Station enforces them
-
-Meanwhile, keep practising in your journal. Every honest log is a lesson.$mq$, $mq$[]$mq$::jsonb, 80, 10, true),
-($mq$z3-confirmation$mq$, 3, 2, $mq$Confirmation Without Paralysis$mq$, $mq$This lesson is still being forged.
-
-## What it will cover
-
-- Rejection wicks and engulfing at levels
-- How long to wait, and when to skip
-
-Meanwhile, keep practising in your journal. Every honest log is a lesson.$mq$, $mq$[]$mq$::jsonb, 80, 10, true),
-($mq$z3-stops$mq$, 3, 3, $mq$Where the Stop Really Goes$mq$, $mq$This lesson is still being forged.
-
-## What it will cover
-
-- Placing stops where the idea is wrong, not where the loss feels small
-- Buffers for spread and wicks
-
-Meanwhile, keep practising in your journal. Every honest log is a lesson.$mq$, $mq$[]$mq$::jsonb, 80, 10, true),
 ($mq$z4-one-percent$mq$, 4, 1, $mq$The 1% Rule$mq$, $mq$This lesson is still being forged.
 
 ## What it will cover
@@ -1091,7 +1067,282 @@ Meanwhile, keep practising in your journal. Every honest log is a lesson.$mq$, $
 - Reading the Hall of Records like a pro
 - Finding one change worth testing
 
-Meanwhile, keep practising in your journal. Every honest log is a lesson.$mq$, $mq$[]$mq$::jsonb, 80, 10, true)
+Meanwhile, keep practising in your journal. Every honest log is a lesson.$mq$, $mq$[]$mq$::jsonb, 80, 10, true),
+($mq$z1-patterns$mq$, 1, 5, $mq$Candle Pattern Field Guide$mq$, $mq$There are hundreds of named candle patterns. You need about seven. Learn what each one **means** (who won, who lost), not just what it looks like.
+
+## Single-candle patterns
+
+- **Doji**: open and close almost equal, wicks on both sides. Message: indecision. Buyers and sellers fought to a draw. A doji alone is a pause, not a signal.
+- **Hammer / bullish pin bar**: small body near the top, long lower wick (at least 2x the body). Message: sellers pushed price down hard, buyers threw it all the way back. Meaningful **at support** in an uptrend.
+- **Shooting star / bearish pin bar**: small body near the bottom, long upper wick. Message: buyers pushed up, sellers slammed it back down. Meaningful **at resistance** in a downtrend.
+- **Marubozu (full-body candle)**: big body, tiny or no wicks. Message: one side controlled the whole period. Shows strong momentum, which is great to see in your direction and a warning against you.
+
+## Two-candle patterns
+
+- **Engulfing**: the second body completely covers the first body, in the opposite colour. Bullish engulfing at support = control shifted to buyers. Bearish engulfing at resistance = control shifted to sellers.
+- **Inside bar**: the second candle's whole range sits inside the first candle's range. Message: the market is pausing and coiling. A break of the inside bar's high or low often starts the next move, but which way is not known in advance.
+
+## Three-candle patterns
+
+- **Morning star** (bullish): a strong bearish candle, then a small indecision candle, then a strong bullish candle that closes well into the first candle's body. At support it shows selling exhausted and buyers taking over.
+- **Evening star** (bearish): the mirror image at resistance.
+
+## The rule that matters more than any pattern
+
+**Location beats shape.** A perfect hammer in the middle of nowhere means almost nothing. A plain-looking rejection at a daily support, in an uptrend, means a lot. Read patterns in this order:
+
+1. Trend (HTF)
+2. Level (support, resistance, trendline)
+3. Pattern (the candle's story at that level)
+
+If the first two don't line up, the third doesn't matter.
+
+## Warrior's rule
+
+**A pattern is a witness, not a judge.** It supports a trade idea you already have at a level. It never creates one on its own.$mq$, $mq$[{"q":"A hammer is most meaningful when it appears…","options":["Anywhere on the chart","At support in an uptrend","In the middle of a range","Right after big news"],"answer":1,"why":"Location beats shape: a hammer at support, with the trend, tells a real story."},{"q":"What does a doji tell you?","options":["A guaranteed reversal","Indecision: neither side won","Strong buying","Strong selling"],"answer":1,"why":"Open ≈ close means a draw. It is a pause, not a signal."},{"q":"A bullish engulfing candle means…","options":["The new bullish body fully covers the prior bearish body","Any big green candle","A candle with no wicks","Two dojis in a row"],"answer":0,"why":"The bullish body \"engulfs\" the previous bearish body: control shifted."},{"q":"An inside bar is…","options":["A candle whose range sits inside the previous candle range","A candle that closes at its low","A gap","A trendline touch"],"answer":0,"why":"Inside bars show a pause/coil. The breakout direction is not known in advance."},{"q":"In what order should you read the chart?","options":["Pattern, then level, then trend","Trend, then level, then pattern","News, then pattern","Only the pattern"],"answer":1,"why":"Trend first, level second, pattern last. Patterns are witnesses, not judges."}]$mq$::jsonb, 80, 10, false),
+($mq$z1-sequences$mq$, 1, 6, $mq$Candle Sequences: Momentum vs Exhaustion$mq$, $mq$One candle is a word. A **sequence** of candles is a sentence. Learning to read sequences tells you whether a move is strong, tired, or turning.
+
+## Momentum
+
+Signs a move is strong:
+
+- Bodies getting **bigger** in the direction of the move
+- Closes near the **extreme** of each candle (near the high in a rally)
+- **Small wicks** against the move
+- Pullbacks are **short and shallow** (one or two small candles)
+
+Strong momentum into your level is a warning: price may blast straight through it. Wait and see a reaction before trading against momentum.
+
+## Exhaustion
+
+Signs a move is getting tired:
+
+- Bodies getting **smaller** while price still edges forward
+- **Wicks growing** against the move (long upper wicks in a rally)
+- Closes drifting away from the extremes
+- Several attempts at a level that keep failing
+
+Exhaustion **at a level** is where reversals are born. Exhaustion in the middle of nowhere is just a pause.
+
+## Pullback quality
+
+In a trend, the pullback tells you a lot:
+
+- **Healthy pullback**: smaller, overlapping candles, lower momentum than the trend move. Buyers are resting, not leaving.
+- **Dangerous pullback**: big, fast candles against the trend that break the last higher low. Sellers have arrived; the trend is in question.
+
+## Putting it together
+
+Ask three questions about the last 5-10 candles:
+
+1. Which side has the bigger bodies?
+2. Where are the wicks pointing (where is price being rejected)?
+3. Is the move speeding up or slowing down?
+
+## Warrior's rule
+
+**Don't fight momentum. Wait for exhaustion at your level, then let a reaction confirm it.**$mq$, $mq$[{"q":"Which sequence shows strong bullish momentum?","options":["Shrinking bodies with long upper wicks","Growing green bodies closing near their highs","Alternating dojis","Long lower wicks only"],"answer":1,"why":"Bigger bodies closing near the highs = buyers in control."},{"q":"In a rally, growing upper wicks and shrinking bodies suggest…","options":["Momentum is increasing","The move may be getting exhausted","A guaranteed crash","Nothing"],"answer":1,"why":"Rejection above and smaller bodies = buyers are tiring."},{"q":"A healthy pullback in an uptrend usually looks like…","options":["Huge red candles breaking the last higher low","Small overlapping candles with less momentum than the rally","A gap down","A news spike"],"answer":1,"why":"Gentle, overlapping pullbacks = buyers resting, not leaving."},{"q":"Strong momentum is heading straight into your resistance level. What should you do?","options":["Short immediately","Wait to see a reaction before trading against it","Double your size","Remove your stop"],"answer":1,"why":"Don't fight momentum. Let the level prove itself first."},{"q":"Where does exhaustion matter most?","options":["In the middle of a range","At a level from your plan","On the 1-second chart","During news"],"answer":1,"why":"Exhaustion at a level is where reversals start; elsewhere it is just a pause."}]$mq$::jsonb, 80, 10, false),
+($mq$z2-breakouts$mq$, 2, 5, $mq$Breakouts Deep Dive: Break, Retest, Go$mq$, $mq$A breakout is price leaving a zone where it was trapped: a range, a resistance level, or a trendline. Breakouts can start big moves. They also trap more beginners than anything else.
+
+## Three kinds of breakout
+
+- **Range breakout**: price closes beyond the ceiling or floor of a sideways range.
+- **Level breakout**: price closes beyond a horizontal support or resistance.
+- **Trendline break**: price closes through a trendline. This often means "trend slowing," not instantly "trend reversed."
+
+## What a real breakout looks like
+
+1. **Build-up**: price presses the level several times; pullbacks get shallower (buyers pushing the floor up toward the ceiling).
+2. **Break**: a candle **closes** clearly beyond the level, ideally with a solid body (not just a wick).
+3. **Retest**: price comes back to the broken level. Old resistance now acts as support (role reversal).
+4. **Go**: the retest holds (rejection wick, engulfing) and price continues.
+
+## The beginner's breakout plan: wait for the retest
+
+- Don't buy the first breakout candle; it's often late and far from a logical stop.
+- Wait for the **retest** of the broken level.
+- Enter when the retest shows a reaction **after the candle closes**.
+- Stop goes back **inside** the old range (if price returns inside, the breakout failed).
+- Target: the next level, or a **measured move** (the height of the range projected from the breakout point). Check that RR is at least 1:2.
+
+You will miss breakouts that never retest. That's the price of avoiding most fakeouts, and it's a good trade-off.
+
+## Fakeouts (failed breakouts)
+
+A fakeout pokes beyond a level and snaps back inside. Common signs:
+
+- Only a **wick** beyond the level, close back inside
+- Breakout right before or during **high-impact news**
+- A breakout **against** the higher-timeframe trend
+- A big level breaking with a tiny, hesitant candle
+
+A failed breakout is information too: trapped breakout traders often have to exit, pushing price back the other way.
+
+## Breakout checklist
+
+- Is the HTF trend in the breakout's direction?
+- Did a candle **close** beyond the level?
+- Did I wait for the **retest**?
+- Is my stop back inside the old zone?
+- Is RR at least 1:2?
+- Any news in the next 30 minutes?
+
+## Warrior's rule
+
+**Break, retest, go. If any step is missing, so is your trade.**$mq$, $mq$[{"q":"What confirms a breakout better than a wick through the level?","options":["A candle closing clearly beyond the level","A big wick","A news headline","A social media post"],"answer":0,"why":"Closes matter. Wicks alone often become fakeouts."},{"q":"After a breakout above resistance, the retest usually happens at…","options":["The broken resistance, now acting as support","The middle of the old range","A random round number","The daily open"],"answer":0,"why":"Role reversal: old resistance becomes new support."},{"q":"Where does the stop go on a breakout-retest long?","options":["Far above entry","Back inside the old range, below the retest","At entry","No stop needed"],"answer":1,"why":"If price returns inside the range, the breakout failed. That is where you are wrong."},{"q":"Which is a common fakeout warning sign?","options":["A strong close with the HTF trend","Only a wick beyond the level, close back inside","A clean retest that holds","Low spreads"],"answer":1,"why":"A wick poke with a close back inside is a classic fakeout."},{"q":"A breakout never retests and runs without you. What did you lose?","options":["Your account","Nothing. Missing a move is free; chasing it is not","Your streak","XP"],"answer":1,"why":"Missed moves cost nothing. Chased fakeouts cost HP."}]$mq$::jsonb, 80, 10, false),
+($mq$z2-pullbacks$mq$, 2, 6, $mq$Pullbacks: Joining a Trend the Right Way$mq$, $mq$Trends don't move in straight lines. After each push comes a **pullback**. For a beginner, pullbacks are the safest way to join a trend: you get a better price and a clear place for your stop.
+
+## Where pullbacks tend to stop
+
+- At a **previous resistance that broke** (now support), in an uptrend
+- At a **rising trendline**
+- At the **previous swing high** that price broke through
+- At a **confluence** of two of the above, which is the strongest
+
+## The pullback entry plan (uptrend example)
+
+1. HTF trend is up: higher highs and higher lows.
+2. Price pulls back **into** a level you marked in your prep.
+3. The pullback slows down (smaller candles, lower wicks appearing).
+4. A reaction candle **closes** at the level (hammer, bullish engulfing).
+5. Enter; stop **below the level / the pullback's low**; target the recent high or the next resistance (RR ≥ 1:2).
+
+For a downtrend, flip everything: pullback **up** into resistance, short on a bearish reaction.
+
+## When a pullback is NOT a pullback
+
+- It **breaks the last higher low** with strong candles, so the uptrend is in question.
+- It slices through your level with momentum and no reaction.
+- The HTF picture has changed (new lower high, lower low).
+
+In those cases, stand aside. Log a **Disciplined Retreat** if you were watching a setup.
+
+## Common beginner mistakes
+
+- Buying the pullback **before** it reaches the level (impatience)
+- Buying with **no reaction candle** (hope)
+- Putting the stop **too tight** inside the noise, so normal wicks stop you out
+- Chasing the push instead of waiting for the pullback (FOMO Wraith)
+
+## Warrior's rule
+
+**Trend gives the direction. The pullback gives the price. The level gives the stop.**$mq$, $mq$[{"q":"Why are pullbacks good entries for beginners?","options":["They guarantee profit","Better price and a clear place for the stop","They happen only once a year","Brokers prefer them"],"answer":1,"why":"You join the trend at a level, with a logical stop nearby."},{"q":"In an uptrend, a strong drop that breaks the last higher low means…","options":["A perfect pullback buy","The uptrend is in question; stand aside","Double your size","Move your stop"],"answer":1,"why":"Breaking the last higher low breaks the HH/HL structure."},{"q":"What should you wait for at the pullback level?","options":["Nothing, buy instantly","A reaction candle that closes (e.g. hammer, engulfing)","A news release","Three red candles"],"answer":1,"why":"Wait for a closed reaction candle at the level."},{"q":"Where does the stop go on a pullback long?","options":["Above the recent high","Below the level / pullback low","At entry","Anywhere"],"answer":1,"why":"Below the level is where the idea is wrong."},{"q":"Chasing the push instead of waiting for the pullback is the work of…","options":["The FOMO Wraith","The Hope Ghost","The Boredom Bat","The News Banshee"],"answer":0,"why":"Chasing moves you missed is FOMO."}]$mq$::jsonb, 80, 10, false),
+($mq$z3-entry-checklist$mq$, 3, 1, $mq$The 3-Check Entry$mq$, $mq$Welcome to Entry Canyon. Everything you've learned comes together here into one repeatable entry routine. Three checks, every time, in order.
+
+## Check 1: Trend (the map)
+
+On your higher timeframe: up, down, or range? Write it down **before** looking for entries. In the Battle Station, this is the **HTF trend** choice.
+
+- Uptrend → look for longs only
+- Downtrend → look for shorts only
+- Range → longs near the floor, shorts near the ceiling, nothing in the middle
+
+## Check 2: Level (the place)
+
+Is price **at** a level from your prep: support, resistance, a trendline, or a broken level being retested? Not "near-ish." At it.
+
+If price isn't at your level, there is no trade. Set an alert and walk away.
+
+## Check 3: Reaction (the trigger)
+
+Did a candle **close** showing the level is holding in your direction? A rejection wick, an engulfing candle, a morning/evening star. This is your **confirmation**.
+
+## Then the math
+
+Only after all three checks:
+
+- Stop beyond the level (where the idea is wrong)
+- Target at the next level, RR at least 1:2
+- Size with the Risk Forge
+- Emotion check: calm enough to follow the plan?
+
+That's exactly what the Battle Station's armor check enforces.
+
+## Why three checks?
+
+Each check removes a common way to lose:
+
+- Trend check removes **Trend Defier** trades
+- Level check removes **FOMO** and **Boredom** trades
+- Reaction check removes **Hope** trades (buying before anything happened)
+
+## Warrior's rule
+
+**Trend, level, reaction, then math. Skip a check and you've skipped the trade.**$mq$, $mq$[{"q":"What are the three checks, in order?","options":["Reaction, level, trend","Trend, level, reaction","News, trend, size","Level, size, emotion"],"answer":1,"why":"Trend first, level second, reaction third, then the math."},{"q":"Price is 30 pips away from your support level. What do you do?","options":["Buy now before it moves","No trade yet: set an alert and wait","Move the level to current price","Sell"],"answer":1,"why":"No level, no trade. Let price come to you."},{"q":"What counts as a reaction?","options":["A candle that closes showing the level holding (e.g. rejection wick)","A feeling","A tweet","Any moving price"],"answer":0,"why":"A closed candle at the level that shows rejection or a shift in control."},{"q":"In a range, where do you trade?","options":["Only the middle","Longs near the floor, shorts near the ceiling","Anywhere","Only breakouts"],"answer":1,"why":"Edges, not middles."},{"q":"Skipping the level check most often lets which monsters in?","options":["FOMO Wraith and Boredom Bat","News Banshee only","None","Stop-Loss Thief only"],"answer":0,"why":"Trading away from your levels is usually FOMO or boredom."}]$mq$::jsonb, 80, 10, false),
+($mq$z3-confirmation$mq$, 3, 2, $mq$Confirmation Without Paralysis$mq$, $mq$Waiting for confirmation protects you. Waiting forever makes you miss everything and then chase. Here's how to confirm **just enough**.
+
+## Good confirmation at a level
+
+- A **rejection wick** into the level and a close back away from it
+- An **engulfing** candle in your direction
+- A **morning star / evening star** at the level
+- On a breakout: the **retest holding** with a rejection
+
+One clear signal **at the level** is enough. You don't need five.
+
+## Which timeframe confirms?
+
+Use your **entry timeframe** (e.g. 15-minute or 1-hour). Don't drop to the 1-minute to "be sure"; that's the Confirmation Fog.
+
+## How long to wait
+
+Give the setup a time limit:
+
+- If price reaches your level and no reaction appears within a few candles, **skip it**.
+- If price closes **through** your level with momentum, the level failed. **Skip it**, and log a Disciplined Retreat.
+
+## The "late entry" problem
+
+Sometimes the confirmation candle is huge, and by its close price is far from the level. Your stop (beyond the level) is now far away, and RR shrinks.
+
+- If RR is still at least 1:2: you may take it.
+- If not: skip, or wait for a small pullback toward the level. Never move your stop closer than the level just to make the RR look better.
+
+## Confirmation is not certainty
+
+Even perfect confirmation fails often. Confirmation improves the odds. That's all. Your stop and your small size handle the rest.
+
+## Warrior's rule
+
+**One clear reaction at your level, on your timeframe, then decide. No reaction, no trade.**$mq$, $mq$[{"q":"How many confirmation signals do you need at a level?","options":["At least five","One clear signal is enough","None","Only news"],"answer":1,"why":"One clear reaction at the level is enough. More is often paralysis."},{"q":"Switching to the 1-minute chart to \"be sure\" is…","options":["Smart","The Confirmation Fog","Required","Risk management"],"answer":1,"why":"Stick to your entry timeframe."},{"q":"Price closes through your level with strong momentum. What now?","options":["Buy anyway","The level failed: skip and log a retreat","Move the level","Double down"],"answer":1,"why":"A strong close through the level means it failed."},{"q":"The confirmation candle was huge and RR is now 1:1.2. What do you do?","options":["Tighten the stop inside the level","Skip or wait for a pullback toward the level","Take it with double size","Remove the target"],"answer":1,"why":"Never cheat the stop to fix RR. Skip or wait."},{"q":"Does perfect confirmation guarantee a win?","options":["Yes","No: it improves odds; stop and size handle the rest","Only on Fridays","Only on gold"],"answer":1,"why":"Confirmation is not certainty."}]$mq$::jsonb, 80, 10, false),
+($mq$z3-stops$mq$, 3, 3, $mq$Where the Stop Really Goes$mq$, $mq$The stop loss is your armor. Most beginners place it where the loss **feels small**. Warriors place it where the trade idea is **wrong**.
+
+## The rule
+
+Your stop goes at the price that proves your idea wrong:
+
+- **Long at support** → below the support zone (and below the reaction candle's low)
+- **Short at resistance** → above the resistance zone (and above the reaction candle's high)
+- **Breakout-retest long** → back inside the old range
+- **Pullback long** → below the pullback low / the level
+
+## Add a buffer
+
+Levels are zones, and price likes to poke a little beyond them. Add a small buffer beyond the zone, plus the **spread**, so a normal wick doesn't stop you out.
+
+## Then size the trade to the stop
+
+Never move the stop to fit the size you want. Do it the other way round:
+
+1. Place the stop where the idea is wrong.
+2. Measure the distance.
+3. Let the **Risk Forge** calculate the lot size for your risk %.
+
+Wide stop → smaller lots. Tight stop → bigger lots. The dollar risk stays the same.
+
+## The forbidden moves
+
+- **Moving the stop further away** once in a trade: Stop-Loss Thief. Costs -40 XP in Market Quest for a reason.
+- **No stop at all**: one bad candle can break your daily limit.
+- **Stop too tight** inside the noise: death by a thousand wicks.
+
+## Allowed moves
+
+- Moving the stop **toward profit** (to break-even after +1R, or trailing behind new swing lows) is fine, **if it's in your plan before entry**.
+
+## Warrior's rule
+
+**Stop where you're wrong. Size from the stop. Never move it away.**$mq$, $mq$[{"q":"Where does the stop go on a long at support?","options":["Just above entry","Below the support zone (with a small buffer)","Above resistance","Wherever the loss feels small"],"answer":1,"why":"Below the level is where the idea is proven wrong."},{"q":"Your stop is wide. What should change?","options":["Move the stop closer","Use a smaller lot size so dollar risk stays the same","Use a bigger lot size","Skip the stop"],"answer":1,"why":"Size from the stop, never the other way round."},{"q":"Why add a buffer beyond the level?","options":["To increase risk","Levels are zones; normal pokes and spread can hit a stop placed exactly on the line","Brokers require it","It improves RR"],"answer":1,"why":"A small buffer avoids getting wicked out by normal noise."},{"q":"Which stop move is allowed (if planned)?","options":["Moving it further away","Moving it toward profit (e.g. break-even after +1R)","Removing it","Doubling it"],"answer":1,"why":"Only toward profit, and only if it was in the plan."},{"q":"Moving your stop further away during a trade summons…","options":["The Stop-Loss Thief","The Boredom Bat","The Overtrade Hydra","Nothing"],"answer":0,"why":"That is exactly the Stop-Loss Thief."}]$mq$::jsonb, 80, 10, false)
 on conflict (id) do update set zone = excluded.zone, sort_order = excluded.sort_order, title = excluded.title,
   content = excluded.content, quiz = excluded.quiz, pass_mark = excluded.pass_mark, est_minutes = excluded.est_minutes, is_stub = excluded.is_stub;
 
@@ -1125,7 +1376,22 @@ insert into public.flashcards (id, user_id, zone, front, back) values
 (md5('mq-card-27')::uuid, null, 5, $mq$What should you do after a loss?$mq$, $mq$Take the Campfire cooldown before looking for the next trade.$mq$),
 (md5('mq-card-28')::uuid, null, 5, $mq$What earns XP in Market Quest?$mq$, $mq$Following your process. Never profit.$mq$),
 (md5('mq-card-29')::uuid, null, 5, $mq$Two losses in a row today?$mq$, $mq$Loss-streak protocol: done for the day.$mq$),
-(md5('mq-card-30')::uuid, null, 3, $mq$Where does your stop go?$mq$, $mq$Where your trade idea is clearly wrong, beyond the level.$mq$)
+(md5('mq-card-30')::uuid, null, 3, $mq$Where does your stop go?$mq$, $mq$Where your trade idea is clearly wrong, beyond the level.$mq$),
+(md5('mq-card-31')::uuid, null, 1, $mq$Doji?$mq$, $mq$Open ≈ close: indecision. A pause, not a signal.$mq$),
+(md5('mq-card-32')::uuid, null, 1, $mq$Hammer / bullish pin bar?$mq$, $mq$Small body near the top, long lower wick: buyers rejected lower prices. Best at support in an uptrend.$mq$),
+(md5('mq-card-33')::uuid, null, 1, $mq$Shooting star?$mq$, $mq$Small body near the bottom, long upper wick: sellers rejected higher prices. Best at resistance.$mq$),
+(md5('mq-card-34')::uuid, null, 1, $mq$Inside bar?$mq$, $mq$A candle whose whole range sits inside the previous candle's range: the market is coiling.$mq$),
+(md5('mq-card-35')::uuid, null, 1, $mq$Morning star?$mq$, $mq$Big bearish candle, small indecision candle, big bullish candle: selling exhausted, buyers taking over.$mq$),
+(md5('mq-card-36')::uuid, null, 1, $mq$Location vs shape?$mq$, $mq$Location beats shape. A pattern only matters at a level, with the trend.$mq$),
+(md5('mq-card-37')::uuid, null, 1, $mq$Signs of momentum?$mq$, $mq$Growing bodies in one direction, closes near the extremes, small wicks against the move.$mq$),
+(md5('mq-card-38')::uuid, null, 1, $mq$Signs of exhaustion?$mq$, $mq$Shrinking bodies, growing wicks against the move, failed attempts at a level.$mq$),
+(md5('mq-card-39')::uuid, null, 2, $mq$Breakout steps?$mq$, $mq$Build-up, break (close beyond), retest, go.$mq$),
+(md5('mq-card-40')::uuid, null, 2, $mq$Measured move?$mq$, $mq$Project the height of the range from the breakout point to estimate a target.$mq$),
+(md5('mq-card-41')::uuid, null, 2, $mq$Breakout stop?$mq$, $mq$Back inside the old range: if price returns inside, the breakout failed.$mq$),
+(md5('mq-card-42')::uuid, null, 2, $mq$Healthy pullback?$mq$, $mq$Smaller, overlapping candles that hold above the last higher low.$mq$),
+(md5('mq-card-43')::uuid, null, 3, $mq$The 3-check entry?$mq$, $mq$Trend, level, reaction. Then the math (stop, RR, size).$mq$),
+(md5('mq-card-44')::uuid, null, 3, $mq$Late entry fix?$mq$, $mq$If RR falls below 1:2 after a huge confirmation candle, skip or wait for a pullback. Never cheat the stop.$mq$),
+(md5('mq-card-45')::uuid, null, 3, $mq$Size from the stop?$mq$, $mq$Place the stop where you are wrong, then let the Risk Forge pick the lot size.$mq$)
 on conflict (id) do update set zone = excluded.zone, front = excluded.front, back = excluded.back;
 
 insert into public.drills (id, zone, title, kind, payload) values
@@ -1138,5 +1404,7 @@ insert into public.drills (id, zone, title, kind, payload) values
 ($mq$drill-rr-2$mq$, 4, $mq$RR Calculator II$mq$, $mq$rr$mq$, $mq${"seed":67,"shape":"down","questions":[{"q":"Short gold: entry 2400, stop 2405, target 2385. RR?","options":["1:2","1:3","1:4"],"answer":1,"why":"Risk $5, reward $15 = 1:3."},{"q":"Short EURUSD: entry 1.0900, stop 1.0925, target 1.0850. RR?","options":["1:2","1:2.5","1:1"],"answer":0,"why":"Risk 25 pips, reward 50 pips = 1:2."}]}$mq$::jsonb),
 ($mq$drill-size-1$mq$, 4, $mq$Position Size I$mq$, $mq$size$mq$, $mq${"seed":71,"shape":"up","questions":[{"q":"$5,000 account, 1% risk, 20-pip stop on EURUSD ($10/pip/lot). Lot size?","options":["0.10","0.25","0.50"],"answer":1,"why":"$50 ÷ (20 × $10) = 0.25 lots."},{"q":"Same account, 1% risk, 50-pip stop. Lot size?","options":["0.10","0.25","1.00"],"answer":0,"why":"$50 ÷ (50 × $10) = 0.10 lots."},{"q":"Your stop gets wider. Your lot size should:","options":["Get bigger","Get smaller","Stay the same"],"answer":1,"why":"Wider stop → smaller lots, same dollar risk."}]}$mq$::jsonb),
 ($mq$drill-size-2$mq$, 4, $mq$Position Size II (Gold)$mq$, $mq$size$mq$, $mq${"seed":79,"shape":"range","questions":[{"q":"$5,000, 0.5% risk, gold stop $5 away ($10 per $0.10 per lot). Lot size?","options":["0.05","0.10","0.50"],"answer":0,"why":"$25 ÷ (50 × $10) = 0.05 lots."},{"q":"Why round lots DOWN, not up?","options":["Brokers require it","So you never risk more than planned","It increases RR"],"answer":1,"why":"Rounding down keeps risk at or below your limit."}]}$mq$::jsonb),
-($mq$drill-mind-1$mq$, 5, $mq$Monster Spotting$mq$, $mq$mind$mq$, $mq${"seed":83,"shape":"up","questions":[{"q":"You lost a trade 5 minutes ago and want to re-enter bigger. Which monster?","options":["FOMO Wraith","Revenge Goblin","Hope Ghost"],"answer":1,"why":"Re-entering quickly after a loss is the Revenge Goblin."},{"q":"You moved your stop further away to \"give it room\". Which monster?","options":["Stop-Loss Thief","Boredom Bat","Early Exit Imp"],"answer":0,"why":"Moving the stop away is the Stop-Loss Thief."},{"q":"Nothing is happening, so you take a so-so setup. Which monster?","options":["News Banshee","Boredom Bat","Trend Defier"],"answer":1,"why":"Trading out of boredom is the Boredom Bat."}]}$mq$::jsonb)
+($mq$drill-mind-1$mq$, 5, $mq$Monster Spotting$mq$, $mq$mind$mq$, $mq${"seed":83,"shape":"up","questions":[{"q":"You lost a trade 5 minutes ago and want to re-enter bigger. Which monster?","options":["FOMO Wraith","Revenge Goblin","Hope Ghost"],"answer":1,"why":"Re-entering quickly after a loss is the Revenge Goblin."},{"q":"You moved your stop further away to \"give it room\". Which monster?","options":["Stop-Loss Thief","Boredom Bat","Early Exit Imp"],"answer":0,"why":"Moving the stop away is the Stop-Loss Thief."},{"q":"Nothing is happening, so you take a so-so setup. Which monster?","options":["News Banshee","Boredom Bat","Trend Defier"],"answer":1,"why":"Trading out of boredom is the Boredom Bat."}]}$mq$::jsonb),
+($mq$drill-breakout-1$mq$, 2, $mq$Spot the Breakout$mq$, $mq$breakout$mq$, $mq${"seed":97,"shape":"breakout","lines":[{"label":"R","at":"range_high"},{"label":"S","at":"range_low"}],"questions":[{"q":"What happened on this chart?","options":["Price stayed in the range","Price broke above the range ceiling (R)","Price broke below the floor (S)"],"answer":1,"why":"Price left the range through the ceiling at line R."},{"q":"After the break, line R is likely to act as…","options":["New support (role reversal)","Nothing","A trendline"],"answer":0,"why":"Broken resistance often becomes support on the retest."},{"q":"The beginner-safe entry is…","options":["Buying the first big breakout candle","Waiting for a retest of R that holds","Shorting the breakout"],"answer":1,"why":"Break, retest, go."},{"q":"Where does the stop go for a retest long?","options":["Back inside the range, below R","Above the latest high","No stop"],"answer":0,"why":"If price returns inside the range, the breakout failed."}]}$mq$::jsonb),
+($mq$drill-candles-1$mq$, 1, $mq$Candle Patterns Quiz$mq$, $mq$patterns$mq$, $mq${"seed":103,"shape":"up","questions":[{"q":"Small body near the top, long lower wick, at support. Name it.","options":["Shooting star","Hammer / bullish pin bar","Doji"],"answer":1,"why":"Long lower wick + body on top = hammer."},{"q":"Open and close almost equal, wicks both sides.","options":["Doji","Marubozu","Engulfing"],"answer":0,"why":"A doji: indecision."},{"q":"Big bullish body fully covering the previous bearish body.","options":["Inside bar","Bullish engulfing","Evening star"],"answer":1,"why":"That is a bullish engulfing."},{"q":"Which matters most?","options":["The pattern name","Where the pattern appears (level + trend)","The candle colour"],"answer":1,"why":"Location beats shape."}]}$mq$::jsonb)
 on conflict (id) do update set zone = excluded.zone, title = excluded.title, kind = excluded.kind, payload = excluded.payload;

@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { genCandles, type DrillPayload } from '@shared/candles';
+import { genCandles, linePrice, type DrillPayload } from '@shared/candles';
 
 /** SVG candlestick chart for drills (synthetic training data, not real prices). */
 export function CandleChart({ payload, height = 220 }: { payload: Pick<DrillPayload, 'seed' | 'shape' | 'lines'>; height?: number }) {
@@ -12,7 +12,6 @@ export function CandleChart({ payload, height = 220 }: { payload: Pick<DrillPayl
   const y = (v: number) => pad + ((hi - v) / (hi - lo)) * (H - pad * 2);
   const step = (W - pad * 2) / candles.length;
   const bw = Math.max(2, step * 0.6);
-  const levelAt = (at: 'low' | 'high' | 'mid') => (at === 'low' ? lo : at === 'high' ? hi : (lo + hi) / 2);
 
   return (
     <svg viewBox={`0 0 ${W} ${H}`} className="w-full rounded-xl bg-surface2" role="img" aria-label={`Practice chart: ${candles.length} candles`}>
@@ -28,7 +27,7 @@ export function CandleChart({ payload, height = 220 }: { payload: Pick<DrillPayl
         );
       })}
       {payload.lines?.map((l) => {
-        const v = levelAt(l.at);
+        const v = linePrice(candles, l.at);
         return (
           <g key={l.label}>
             <line x1={pad} x2={W - pad} y1={y(v)} y2={y(v)} stroke="rgb(var(--c-gold))" strokeWidth={1.5} strokeDasharray="5 4" />

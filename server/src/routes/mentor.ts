@@ -114,6 +114,7 @@ mentorRouter.post(
           busy: 'The Mentor is busy right now. Try again in a minute.',
           auth: 'The Mentor key on the server is invalid. Check the AI key in Render → Environment.',
           credits: 'The AI account is out of credits. Top up on openrouter.ai, then try again.',
+          model: 'The AI model name on the server is not available. Check OPENROUTER_MODEL in Render → Environment (see openrouter.ai/models).',
           other: 'The Mentor could not answer. Please try again.',
         }[e.kind];
         throw new HttpError(e.kind === 'other' ? 502 : 503, msg, `ai_${e.kind}`);

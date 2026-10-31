@@ -1,12 +1,12 @@
 import { describe, expect, it } from 'vitest';
 // @ts-expect-error plain .mjs content module
 import { LESSONS, DRILLS, FLASHCARDS } from '../scripts/academy-content.mjs';
-import { genCandles } from '@shared/candles';
+import { genCandles, linePrice } from '@shared/candles';
 
 describe('academy content', () => {
   it('every real lesson has 5 valid quiz questions', () => {
     const real = LESSONS.filter((l: any) => !l.is_stub);
-    expect(real.length).toBe(8);
+    expect(real.length).toBe(15);
     for (const l of real) {
       expect(l.quiz.length).toBe(5);
       for (const q of l.quiz) {
@@ -32,5 +32,8 @@ describe('academy content', () => {
     expect(up[up.length - 1].c).toBeGreaterThan(up[0].o);
     expect(down[down.length - 1].c).toBeLessThan(down[0].o);
     for (const c of up) expect(c.h).toBeGreaterThanOrEqual(Math.max(c.o, c.c));
+    const b = genCandles(97, 'breakout');
+    expect(b.length).toBe(48);
+    expect(b[b.length - 1].c).toBeGreaterThan(linePrice(b, 'range_high'));
   });
 });

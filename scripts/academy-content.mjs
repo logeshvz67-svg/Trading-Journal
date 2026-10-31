@@ -1,3 +1,4 @@
+import { EXTRA_LESSONS, EXTRA_FLASHCARDS, EXTRA_DRILLS } from './academy-extra.mjs';
 // Training Academy content. Run `npm run seed:academy` to regenerate supabase/seed_academy.sql.
 // Lesson text uses a tiny markdown subset: "## heading", "- bullet", "**bold**", blank-line paragraphs.
 
@@ -359,7 +360,7 @@ You will miss some breakouts. That's fine. Missing a move costs you nothing; cha
   },
 ];
 
-// Zones 3-7: outlines now, full lessons in a later content drop.
+// Zones 4-7: outlines now, full lessons in a later content drop. (Zone 3 is in academy-extra.mjs.)
 const stub = (id, zone, order, title, summary) => ({
   id,
   zone,
@@ -371,9 +372,6 @@ const stub = (id, zone, order, title, summary) => ({
 });
 
 LESSONS.push(
-  stub('z3-entry-checklist', 3, 1, 'The 3-Check Entry', '- Trend, level, reaction: the three checks before any entry\n- Why the Battle Station enforces them'),
-  stub('z3-confirmation', 3, 2, 'Confirmation Without Paralysis', '- Rejection wicks and engulfing at levels\n- How long to wait, and when to skip'),
-  stub('z3-stops', 3, 3, 'Where the Stop Really Goes', '- Placing stops where the idea is wrong, not where the loss feels small\n- Buffers for spread and wicks'),
   stub('z4-one-percent', 4, 1, 'The 1% Rule', '- Why small risk keeps you alive through losing streaks\n- Streak math: 10 losses at 1% vs 5%'),
   stub('z4-sizing', 4, 2, 'Position Sizing in Practice', '- Using the Risk Forge for forex, gold and indices\n- Rounding down, minimum lots, and when to skip'),
   stub('z4-prop-math', 4, 3, 'Prop Firm Math', '- Daily loss and max drawdown as HP and Shield\n- How many losing trades your rules allow'),
@@ -461,3 +459,7 @@ export const DRILLS = [
     payload: { seed: 83, shape: 'up', questions: [q('You lost a trade 5 minutes ago and want to re-enter bigger. Which monster?', ['FOMO Wraith', 'Revenge Goblin', 'Hope Ghost'], 1, 'Re-entering quickly after a loss is the Revenge Goblin.'), q('You moved your stop further away to "give it room". Which monster?', ['Stop-Loss Thief', 'Boredom Bat', 'Early Exit Imp'], 0, 'Moving the stop away is the Stop-Loss Thief.'), q('Nothing is happening, so you take a so-so setup. Which monster?', ['News Banshee', 'Boredom Bat', 'Trend Defier'], 1, 'Trading out of boredom is the Boredom Bat.')] },
   },
 ];
+
+LESSONS.push(...EXTRA_LESSONS);
+FLASHCARDS.push(...EXTRA_FLASHCARDS);
+DRILLS.push(...EXTRA_DRILLS);

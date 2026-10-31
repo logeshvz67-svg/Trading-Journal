@@ -8,7 +8,7 @@ export interface Candle {
   c: number;
 }
 
-export type ChartShape = 'up' | 'down' | 'range';
+export type ChartShape = 'up' | 'down' | 'range' | 'breakout';
 
 function mulberry32(seed: number) {
   let a = seed >>> 0;
@@ -22,6 +22,16 @@ function mulberry32(seed: number) {
 }
 
 export function genCandles(seed: number, shape: ChartShape, n = 48, base = 100): Candle[] {
+  // A breakout chart is a range for the first 60%, then a push up out of it.
+  if (shape === 'breakout') {
+    const split = Math.floor(n * 0.6);
+    const range = genCandles(seed, 'range', split, base);
+    const last = range[range.length - 1].c;
+    const top = Math.max(...range.map((c) => c.h));
+    const trend = genCandles(seed + 1, 'up', n - split, top);
+    const shift = last - trend[0].o;
+    return [...range, ...trend.map((c) => ({ o: c.o + shift, h: c.h + shift, l: c.l + shift, c: c.c + shift }))];
+  }
   const rnd = mulberry32(seed);
   const out: Candle[] = [];
   let price = base;
@@ -53,10 +63,20 @@ export interface DrillQuestion {
   why?: string; // shown after grading
 }
 
+export type LineAt = 'low' | 'high' | 'mid' | 'range_low' | 'range_high';
+
+/** Price of a drill line on a generated chart. */
+export function linePrice(candles: Candle[], at: LineAt): number {
+  const part = at.startsWith('range_') ? candles.slice(0, Math.floor(candles.length * 0.6)) : candles;
+  const lo = Math.min(...part.map((c) => c.l));
+  const hi = Math.max(...part.map((c) => c.h));
+  return at.endsWith('low') ? lo : at.endsWith('high') ? hi : (lo + hi) / 2;
+}
+
 export interface DrillPayload {
   seed: number;
   shape: ChartShape;
-  /** Optional horizontal lines drawn on the chart: 'low' = lowest low, 'high' = highest high, 'mid' = middle. */
-  lines?: { label: string; at: 'low' | 'high' | 'mid' }[];
+  /** Optional horizontal lines: 'low'/'high'/'mid' of the whole chart, or 'range_low'/'range_high' of a breakout chart's range part. */
+  lines?: { label: string; at: LineAt }[];
   questions: DrillQuestion[];
 }

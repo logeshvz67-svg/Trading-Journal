@@ -24,7 +24,7 @@ services:
       - key: OPENROUTER_API_KEY
         sync: false
       - key: OPENROUTER_MODEL
-        value: openrouter/auto
+        value: nvidia/nemotron-nano-12b-v2-vl:free,nvidia/nemotron-nano-9b-v2:free
       - key: ANTHROPIC_API_KEY
         sync: false
       - key: AI_DAILY_LIMIT

@@ -74,7 +74,8 @@ Push to `main` and Render auto-deploys (`autoDeploy: true`). Each deploy restart
 
 1. At https://openrouter.ai, go to **Keys** and create a key. Add a few dollars of credit, and set a credit limit on the key.
 2. In Render → your service → **Environment**, set `OPENROUTER_API_KEY` to that key.
-3. Optional: set `OPENROUTER_MODEL` to a specific model id from https://openrouter.ai/models (e.g. an Anthropic Claude model). For chart reviews, choose a model that accepts images. The default `openrouter/auto` lets OpenRouter pick.
+3. `OPENROUTER_MODEL` defaults to the **free NVIDIA Nemotron** models: `nvidia/nemotron-nano-12b-v2-vl:free,nvidia/nemotron-nano-9b-v2:free`. A comma-separated list is a fallback chain; put a vision model first for chart reviews. If OpenRouter renames a model, copy the new id from https://openrouter.ai/models (search "nemotron", filter "free").
+   Free models have daily request caps on OpenRouter (higher once you've added a little credit). If the Mentor says it's busy, wait a minute.
 4. Save; Render redeploys. If both keys are set, OpenRouter is used.
 
 ### With Anthropic directly

@@ -38,7 +38,8 @@ async function lessonPath(userId: string) {
   return lessons.map((l) => {
     const p = prog.get(l.id);
     const passed = p?.status === 'passed';
-    const locked = l.is_stub ? true : !previousPassed;
+    // Never re-lock a lesson you already started or passed (e.g. when new lessons are added earlier in the path).
+    const locked = l.is_stub ? true : !previousPassed && !p;
     if (!l.is_stub) previousPassed = passed;
     return { ...l, status: passed ? 'passed' : p ? 'started' : 'new', score: p?.score ?? null, attempts: p?.attempts ?? 0, locked };
   });
