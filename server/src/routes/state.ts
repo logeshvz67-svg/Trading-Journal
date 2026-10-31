@@ -6,7 +6,8 @@ import { big } from '@shared/risk';
 import { levelProgress, XP } from '@shared/xp';
 import { admin } from '../lib/supabase';
 import { bad, must, parse, wrap } from '../lib/http';
-import { requireActiveAccount } from '../services/context';
+import { getProfile, requireActiveAccount } from '../services/context';
+import { evaluateProgress } from '../services/progress';
 import { getRiskState } from '../services/riskState';
 import { activeMonster } from '../services/monsters';
 import { awardXp } from '../services/xp';
@@ -17,9 +18,21 @@ export const stateRouter = Router();
 stateRouter.get(
   '/state',
   wrap(async (req, res) => {
-    const [state, monster] = await Promise.all([getRiskState(req.userId), activeMonster(req.userId)]);
-    const { profile, ...rest } = state;
-    res.json({ ...rest, profile, progress: levelProgress(profile.xp), activeMonster: monster });
+    const first = await getRiskState(req.userId);
+    // Quests/achievements may award XP, so evaluate them first, then re-read the profile.
+    const prog = first.account ? await evaluateProgress(first.profile) : null;
+    const [profile, monster] = await Promise.all([prog?.notices.length ? getProfile(req.userId) : Promise.resolve(first.profile), activeMonster(req.userId)]);
+    const { profile: _old, ...rest } = first;
+    res.json({
+      ...rest,
+      profile,
+      progress: levelProgress(profile.xp),
+      activeMonster: monster,
+      streaks: prog?.streaks ?? {},
+      quests: prog?.quests ?? [],
+      achievementsUnlocked: prog?.achievements.filter((a) => a.unlocked).length ?? 0,
+      notices: prog?.notices ?? [],
+    });
   }),
 );
 

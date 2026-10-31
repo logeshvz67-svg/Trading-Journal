@@ -60,6 +60,7 @@ export const INSTRUMENT_PRESETS: InstrumentPreset[] = [
 export const MIN_RR = 2; // armor rule: reward must be at least 2x the risk
 export const LOT_STEP = '0.01';
 export const REVENGE_WINDOW_MIN = 15;
+export const LOSS_COOLDOWN_MIN = 30;
 export const TIMELY_LOG_WINDOW_MIN = 10;
 export const ALERT_PCT = 70;
 export const LOCKOUT_PCT = 90;

@@ -10,6 +10,7 @@ import {
   MAX_SKIP_REWARDS_PER_DAY,
   MONSTER_IDS,
   REVENGE_WINDOW_MIN,
+  LOSS_COOLDOWN_MIN,
   type MonsterId,
 } from '@shared/constants';
 import { closeMessage, COPY } from '@shared/copy';
@@ -283,6 +284,9 @@ async function closeTrade(userId: string, tradeId: string, body: z.infer<typeof 
 
   const defeated = followedPlan ? await recordCleanTrade(userId, tradeId) : [];
 
+  // Campfire cooldowns: 30 minutes after a loss; two losses in a row today ends the day.
+  if (big(pnl)!.lt(0)) await applyLossCooldowns(userId, trade.account_id, closedAt, now);
+
   const state = await getRiskState(userId); // recomputes HP/Shield and persists a lockout if needed
   must(await admin.from('accounts').update({ current_balance: state.balance }).eq('id', trade.account_id).eq('user_id', userId));
 
@@ -301,6 +305,20 @@ async function closeTrade(userId: string, tradeId: string, body: z.infer<typeof 
     message: closeMessage({ followedPlan, isLoss, monsterName }),
     state: { daily: state.daily, drawdown: state.drawdown, alert: state.alert, alertMessage: state.alertMessage, locked: state.locked, lockMessage: state.lockMessage },
   };
+}
+
+async function applyLossCooldowns(userId: string, accountId: string, closedAt: Date, now: Date) {
+  const ends = new Date(closedAt.getTime() + LOSS_COOLDOWN_MIN * 60_000);
+  const rows: Record<string, unknown>[] = [];
+  if (ends > now) rows.push({ user_id: userId, account_id: accountId, starts_at: now.toISOString(), ends_at: ends.toISOString(), reason: 'loss_cooldown' });
+  const state = await getRiskState(userId, now);
+  const lastTwo = must(
+    await admin.from('trades').select('pnl, closed_at').eq('user_id', userId).eq('status', 'closed').gte('closed_at', state.dayStart).order('closed_at', { ascending: false }).limit(2),
+  ) as { pnl: number }[];
+  if (lastTwo.length === 2 && lastTwo.every((t) => Number(t.pnl) < 0) && !state.cooldowns.some((c) => c.reason === 'loss_streak')) {
+    rows.push({ user_id: userId, account_id: accountId, starts_at: now.toISOString(), ends_at: state.dayEnd, reason: 'loss_streak' });
+  }
+  if (rows.length) must(await admin.from('cooldowns').insert(rows));
 }
 
 /** Journal edits after the fact: notes, screenshot, and honest late mistake tags. */

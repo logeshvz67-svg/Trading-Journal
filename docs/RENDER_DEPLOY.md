@@ -15,7 +15,7 @@ One web service runs the Express API **and** serves the built React app. No Rend
    - `SUPABASE_URL`
    - `SUPABASE_ANON_KEY`
    - `SUPABASE_SERVICE_ROLE_KEY`
-   - `ANTHROPIC_API_KEY`: **leave blank** (the AI Mentor is optional and arrives in Phase 4)
+   - `ANTHROPIC_API_KEY`: optional. Leave blank to run without the AI Mentor; add it any time later (see below)
 4. Click **Apply**. The first build takes about 3-5 minutes.
 
 ## Option B: Manual web service
@@ -67,3 +67,11 @@ Push to `main` and Render auto-deploys (`autoDeploy: true`). Each deploy restart
 | Login works but every API call says "session expired" | `SUPABASE_URL` or the keys belong to a different project. Re-copy all 3 |
 | Email confirmation link opens localhost | Set the Site URL in Supabase to your Render URL |
 | Screenshot upload fails | Run `0003_storage.sql` and check that the `screenshots` bucket exists |
+
+## Turning on the AI Mentor (optional)
+
+1. Create an API key at https://console.anthropic.com (Settings → API Keys) and add a small monthly spend limit there.
+2. In Render → your service → **Environment**, set `ANTHROPIC_API_KEY`. The defaults are already set: `AI_MODEL=claude-opus-5-5`, `AI_DAILY_LIMIT=20` calls per user per day, and `AI_MAX_TOKENS=1500` per reply.
+3. Save; Render redeploys. The Mentor page now shows "x/20 questions used today".
+
+Cost control: each call is capped by `AI_MAX_TOKENS`, runs at low effort, and the daily limit is enforced atomically in the database (table `ai_usage`), so it survives restarts. To spend less, lower `AI_DAILY_LIMIT` or switch `AI_MODEL` to a cheaper model such as `claude-sonnet-5-5` or `claude-haiku-5-5`. Requests use server-side fallback (`fallbacks: "default"`), so if a request is declined it is automatically retried on a fallback model.

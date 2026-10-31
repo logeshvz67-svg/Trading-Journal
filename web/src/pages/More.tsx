@@ -2,6 +2,13 @@ import { Link } from 'react-router-dom';
 import { theme } from '../theme/config';
 
 const ITEMS = [
+  { to: '/boss', icon: '👑', label: theme.labels.boss },
+  { to: '/mentor', icon: '🧙', label: 'Mentor' },
+  { to: '/monsters', icon: '👾', label: theme.labels.monsters },
+  { to: '/quests', icon: '📜', label: 'Quest Board' },
+  { to: '/records', icon: '📊', label: 'Hall of Records' },
+  { to: '/rewards', icon: '🏅', label: 'Rewards' },
+  { to: '/codex', icon: '📖', label: 'Codex' },
   { to: '/prep', icon: '🌅', label: theme.labels.prep },
   { to: '/forge', icon: '⚒️', label: theme.labels.forge },
   { to: '/campfire', icon: '🔥', label: theme.labels.campfire },
@@ -18,7 +25,6 @@ export default function More() {
           <span className="text-sm font-semibold">{i.label}</span>
         </Link>
       ))}
-      <div className="card col-span-2 text-center text-xs text-muted">Monster Den, Quests, Hall of Records and the Academy unlock in the next phases.</div>
     </div>
   );
 }

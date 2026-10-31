@@ -11,6 +11,16 @@ import { StoreProvider } from './store';
 
 applyTheme('dark');
 
+// Installable PWA (production only, so dev hot-reload isn't cached).
+if ('serviceWorker' in navigator && import.meta.env.PROD) {
+  window.addEventListener('load', () => navigator.serviceWorker.register('/sw.js').catch(() => {}));
+}
+// Keep the browser's install prompt so Settings can offer an "Install app" button.
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  (window as any).__mqInstall = e;
+});
+
 function Boot() {
   const [sb, setSb] = useState<SupabaseClient | null>(null);
   const [attempt, setAttempt] = useState(0);

@@ -14,5 +14,6 @@ export const config = {
   // Optional: the app works fully without AI (Phase 4).
   aiApiKey: process.env.ANTHROPIC_API_KEY || '',
   aiDailyLimit: Number(process.env.AI_DAILY_LIMIT || 20),
-  aiMaxTokens: Number(process.env.AI_MAX_TOKENS || 800),
+  aiMaxTokens: Number(process.env.AI_MAX_TOKENS || 1500),
+  aiModel: process.env.AI_MODEL || 'claude-opus-5-5',
 };

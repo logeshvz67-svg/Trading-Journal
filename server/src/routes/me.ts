@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { z } from 'zod';
 import { ACCOUNT_PHASES, DRAWDOWN_MODES } from '@shared/constants';
 import { scoreAssessment } from '@shared/onboarding';
+import { BASE_AVATAR_IDS } from '@shared/avatars';
 import { big } from '@shared/risk';
 import { isValidTimeZone } from '@shared/time';
 import { levelProgress } from '@shared/xp';
@@ -103,12 +104,20 @@ meRouter.patch(
     const body = parse(
       profileSchema.partial().extend({
         settings: z
-          .object({ sound: z.boolean().optional(), theme: z.enum(['dark', 'light', 'system']).optional() })
+          .object({
+            sound: z.boolean().optional(),
+            theme: z.enum(['dark', 'light', 'system']).optional(),
+            notifications: z.object({ enabled: z.boolean(), prep_time: z.string().regex(/^([01]\d|2[0-3]):[0-5]\d$/) }).strict().optional(),
+          })
           .strict()
           .optional(),
       }),
       req.body,
     );
+    if (body.avatar && !(BASE_AVATAR_IDS as readonly string[]).includes(body.avatar)) {
+      const owned = must(await admin.from('user_inventory').select('item_id, shop_items!inner(kind, value)').eq('user_id', req.userId).eq('shop_items.kind', 'avatar').eq('shop_items.value', body.avatar).limit(1)) as unknown[];
+      if (!owned.length) throw bad('Unlock that avatar in the gold shop first.');
+    }
     const update: Record<string, unknown> = { ...body };
     if (body.settings) {
       const current = await getProfile(req.userId);

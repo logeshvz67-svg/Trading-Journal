@@ -26,4 +26,6 @@ services:
       - key: AI_DAILY_LIMIT
         value: "20"
       - key: AI_MAX_TOKENS
-        value: "800"
+        value: "1500"
+      - key: AI_MODEL
+        value: claude-opus-5-5

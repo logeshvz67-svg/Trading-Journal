@@ -1,11 +1,14 @@
 import { useState } from 'react';
-import { api } from '../lib/api';
+import { api, downloadFile } from '../lib/api';
+import { NotificationSettings } from '../components/NotificationSettings';
+
+const EXPORT_KINDS = ['trades', 'sessions', 'xp_events', 'mistakes', 'reflections', 'monsters', 'codex', 'oath', 'lessons', 'drills', 'quests', 'achievements', 'accounts', 'rewards'];
 import { useStore } from '../store';
 import { theme } from '../theme/config';
 import { AccountForm, accountFromApi, accountPayload, DEFAULT_ACCOUNT, type AccountDraft } from '../components/AccountForm';
 import { Card, Chips, Field, PageTitle, Toggle, errMsg, toast } from '../components/ui';
 
-const ZONES: string[] = (Intl as any).supportedValuesOf?.('timeZone') ?? ['UTC'];
+const ZONES: string[] = ['UTC', ...(((Intl as any).supportedValuesOf?.('timeZone') as string[] | undefined) ?? []).filter((z) => z !== 'UTC')];
 
 export default function Settings() {
   const { me, sb, refreshMe, refreshState, signOut } = useStore();
@@ -17,6 +20,7 @@ export default function Settings() {
   const [account, setAccount] = useState<AccountDraft>(me!.account ? accountFromApi(me!.account) : DEFAULT_ACCOUNT);
   const [oath, setOath] = useState<string[]>(me!.oath.map((o) => o.text));
   const [pw, setPw] = useState('');
+  const [confirmDelete, setConfirmDelete] = useState('');
 
   async function run(fn: () => Promise<unknown>, ok: string) {
     try {
@@ -125,7 +129,39 @@ export default function Settings() {
           </button>
         </div>
       </Card>
-      <p className="text-center text-xs text-muted">CSV export, notifications and delete-my-data arrive in Phase 2.</p>
+      <NotificationSettings />
+
+      <Card title="Export my data (CSV)" icon="📦">
+        <p className="mb-3 text-xs text-muted">Your data is yours. Download any table as CSV (opens in Excel or Google Sheets). Good habit: export monthly as a backup.</p>
+        <div className="flex flex-wrap gap-2">
+          {EXPORT_KINDS.map((k) => (
+            <button key={k} className="chip text-xs capitalize" onClick={() => downloadFile(`/export/${k}.csv`, `market-quest-${k}.csv`).catch((e) => toast(errMsg(e), 'bad'))}>
+              ⬇ {k.replace('_', ' ')}
+            </button>
+          ))}
+        </div>
+      </Card>
+
+      <Card title="Danger zone" icon="⚠️">
+        <p className="mb-3 text-sm text-muted">Permanently delete your account, every trade, screenshot, XP event and setting. This cannot be undone. Export first.</p>
+        <Field label='Type DELETE to confirm'>
+          <input className="input" value={confirmDelete} onChange={(e) => setConfirmDelete(e.target.value)} />
+        </Field>
+        <button
+          className="btn-danger mt-3 w-full"
+          disabled={confirmDelete !== 'DELETE'}
+          onClick={async () => {
+            try {
+              await api('/me', { method: 'DELETE', body: { confirm: 'DELETE' } });
+              await signOut();
+            } catch (e) {
+              toast(errMsg(e), 'bad');
+            }
+          }}
+        >
+          Delete all my data forever
+        </button>
+      </Card>
     </div>
   );
 }

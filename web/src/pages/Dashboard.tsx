@@ -4,6 +4,8 @@ import { useStore } from '../store';
 import { theme } from '../theme/config';
 import { Banner, Card, Meter, Spinner } from '../components/ui';
 import { usd } from '../lib/format';
+import { computeReminders } from '../lib/reminders';
+import { avatarEmoji, equippedTitle, frameRing } from '../lib/avatar';
 
 const TIPS: Record<string, string[]> = {
   guardian: ['Your defense is strong. Today, practice letting one planned winner reach its target.', 'A skipped trade is still a decision. Log it as a Disciplined Retreat.'],
@@ -15,24 +17,37 @@ export default function Dashboard() {
   const { me, state } = useStore();
   if (!me || !state) return <Spinner />;
   const name = me.profile.display_name;
-  const avatar = theme.avatars.find((a) => a.id === me.profile.avatar)?.emoji ?? '🛡️';
   const session = state.session;
   const focus = session ? Number(session.focus_score) : null;
   const tips = TIPS[me.profile.risk_personality ?? 'balanced'] ?? TIPS.balanced;
   const tip = tips[new Date().getDate() % tips.length];
   const p = state.progress;
+  const reminders = computeReminders(state, me);
 
   return (
     <div className="space-y-4">
       <div className="flex items-center gap-3">
-        <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-surface2 text-3xl">{avatar}</div>
+        <div className={`flex h-14 w-14 items-center justify-center rounded-2xl bg-surface2 text-3xl ${frameRing(state.profile)}`}>{avatarEmoji(state.profile)}</div>
         <div>
           <h1 className="text-xl font-bold">Welcome back, {name}</h1>
           <p className="text-sm text-muted">
+            {equippedTitle(state.profile) ? `${equippedTitle(state.profile)} · ` : ''}
             {p.rank} · Level {p.level}
           </p>
         </div>
       </div>
+
+      {reminders.length > 0 && (
+        <div className="space-y-1.5">
+          {reminders.map((r) => (
+            <Link key={r.id} to={r.to} className="flex items-center gap-2 rounded-xl border border-border bg-surface px-3 py-2 text-sm">
+              <span>{r.icon}</span>
+              <span className="flex-1">{r.text}</span>
+              <span className="text-muted">›</span>
+            </Link>
+          ))}
+        </div>
+      )}
 
       <Meter label={`Level ${p.level} → ${p.level + 1}`} color="xp" remainingPct={(p.into / p.needed) * 100} valueText={`${p.into} / ${p.needed} XP`} />
 
@@ -126,7 +141,68 @@ export default function Dashboard() {
         </Card>
       </div>
 
-      <Card title="Mentor tip" icon="🧙">
+      <div className="grid grid-cols-3 gap-2 text-center">
+        {[
+          ['📜', 'Journal', state.streaks?.journal ?? 0, 'days'],
+          ['🧭', 'Plan', state.streaks?.plan ?? 0, 'trades'],
+          ['🎓', 'Learning', state.streaks?.learning ?? 0, 'days'],
+        ].map(([icon, label, n, unit]) => (
+          <div key={label as string} className="card px-2 py-3">
+            <div className="text-xl">
+              {icon}
+              {Number(n) > 0 && <span className="ml-0.5 text-sm">🔥</span>}
+            </div>
+            <div className="font-display text-xl font-bold">{n}</div>
+            <div className="text-[11px] text-muted">
+              {label} streak ({unit})
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <Card title="Today's quests" icon="📜" action={<Link to="/quests" className="text-xs text-muted underline">Quest Board</Link>}>
+        <ul className="space-y-3">
+          {state.quests
+            .filter((q) => q.type === 'daily' || (q.type === 'story' && !q.completed))
+            .map((q) => (
+              <li key={q.id}>
+                <div className="flex justify-between text-sm">
+                  <span className={q.completed ? 'text-muted line-through' : ''}>
+                    {q.type === 'story' ? '📖 ' : ''}
+                    {q.title}
+                  </span>
+                  <span className="text-xs text-muted">
+                    {q.progress}/{q.target}
+                  </span>
+                </div>
+                <div className="text-xs text-muted">{q.description}</div>
+              </li>
+            ))}
+        </ul>
+      </Card>
+
+      <Link to="/boss" className="card block">
+        <div className="mb-2 flex items-center justify-between">
+          <h2 className="text-base font-bold">👑 Boss progress</h2>
+          <span className="text-xs text-muted capitalize">{me.account?.phase}</span>
+        </div>
+        <div className="grid grid-cols-3 gap-2 text-center text-xs">
+          <div>
+            <div className="font-display text-lg font-bold">{state.tradingDays.done}/{state.tradingDays.required || '–'}</div>
+            <div className="text-muted">trading days</div>
+          </div>
+          <div>
+            <div className="font-display text-lg font-bold">{Math.max(0, state.profit.pct ?? 0)}%</div>
+            <div className="text-muted">of target</div>
+          </div>
+          <div>
+            <div className="font-display text-lg font-bold">{state.achievementsUnlocked}/12</div>
+            <div className="text-muted">achievements</div>
+          </div>
+        </div>
+      </Link>
+
+      <Card title="Mentor tip" icon="🧙" action={<Link to="/mentor" className="text-xs text-muted underline">Ask the Mentor</Link>}>
         <p className="text-sm">{tip}</p>
       </Card>
 

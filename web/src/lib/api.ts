@@ -59,3 +59,17 @@ export async function wakeServer(onTick: (attempt: number) => void, maxWaitMs = 
   }
   return false;
 }
+
+/** Download an authenticated file (e.g. CSV export) and save it in the browser. */
+export async function downloadFile(path: string, filename: string) {
+  const sb = getSupabase();
+  const token = sb ? (await sb.auth.getSession()).data.session?.access_token : undefined;
+  const res = await fetch(`/api${path}`, { headers: token ? { Authorization: `Bearer ${token}` } : {} });
+  if (!res.ok) throw new ApiError(res.status, 'Export failed. Please try again.', null);
+  const url = URL.createObjectURL(await res.blob());
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(url), 5000);
+}

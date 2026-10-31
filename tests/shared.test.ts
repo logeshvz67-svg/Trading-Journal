@@ -100,3 +100,16 @@ describe('focus', () => {
     expect(focusScore({ mood: 'angry', sleepOk: false, distractions: true, newsChecked: false })).toBe(10);
   });
 });
+
+import { isoWeekKey, dayStreak } from '@shared/time';
+describe('streak helpers', () => {
+  it('iso weeks', () => {
+    expect(isoWeekKey(new Date('2026-01-01T12:00:00Z'), 'UTC')).toBe('2026-W01');
+    expect(isoWeekKey(new Date('2026-10-31T12:00:00Z'), 'UTC')).toBe('2026-W44');
+  });
+  it('day streaks tolerate today not done yet', () => {
+    expect(dayStreak(new Set(['2026-10-29', '2026-10-30']), '2026-10-31')).toBe(2);
+    expect(dayStreak(new Set(['2026-10-29', '2026-10-30', '2026-10-31']), '2026-10-31')).toBe(3);
+    expect(dayStreak(new Set(['2026-10-28']), '2026-10-31')).toBe(0);
+  });
+});

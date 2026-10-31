@@ -11,6 +11,7 @@ interface UserMonster {
   monster_id: string;
   encounter_count: number;
   clean_trade_streak: number;
+  times_defeated: number;
   status: 'lurking' | 'active' | 'defeated';
 }
 
@@ -42,6 +43,15 @@ async function recordEncounter(userId: string, monsterId: string) {
       { onConflict: 'user_id,monster_id' },
     ),
   );
+  // The first time a monster becomes active, its fix becomes a Codex rule you earned.
+  if (status === 'active' && existing?.status !== 'active') {
+    const m = must(await admin.from('monsters').select('name, fix').eq('id', monsterId).single()) as { name: string; fix: string };
+    must(
+      await admin
+        .from('codex_rules')
+        .upsert({ user_id: userId, source: 'auto', source_monster_id: monsterId, text: `${m.fix} (earned from the ${m.name})` }, { onConflict: 'user_id,source_monster_id', ignoreDuplicates: true }),
+    );
+  }
 }
 
 /** A clean trade (plan followed, no tags) advances the defeat counter of every active monster. */
@@ -54,7 +64,7 @@ export async function recordCleanTrade(userId: string, tradeId: string): Promise
       must(
         await admin
           .from('user_monsters')
-          .update({ clean_trade_streak: streak, status: 'defeated', defeated_at: new Date().toISOString(), encounter_count: 0 })
+          .update({ clean_trade_streak: streak, status: 'defeated', defeated_at: new Date().toISOString(), encounter_count: 0, times_defeated: (m.times_defeated ?? 0) + 1 })
           .eq('id', m.id),
       );
       await awardXp(userId, [{ reason: 'monster_defeated', amount: XP.monsterDefeated }], `${m.monster_id}:${tradeId}`);

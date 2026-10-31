@@ -19,8 +19,8 @@ export interface AwardResult {
  */
 export async function awardXp(userId: string, lines: XpLine[], refId: string | null, meta?: Record<string, unknown>): Promise<AwardResult> {
   const events = lines
-    .filter((l) => l.amount !== 0)
-    .map((l) => ({ reason: l.reason, amount: l.amount, gold: goldFor(l.amount), ref_id: refId, meta: meta ?? null }));
+    .map((l) => ({ reason: l.reason, amount: l.amount, gold: l.gold ?? goldFor(l.amount), ref_id: refId, meta: meta ?? null }))
+    .filter((e) => e.amount !== 0 || e.gold > 0);
   const before = must(await admin.from('profiles').select('xp').eq('user_id', userId).single()) as { xp: number };
   const levelBefore = levelProgress(before.xp).level;
   if (!events.length) {

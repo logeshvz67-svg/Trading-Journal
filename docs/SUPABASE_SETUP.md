@@ -16,7 +16,9 @@ Takes about 10 minutes. Supabase's dashboard changes now and then, so menu names
    1. `supabase/migrations/0001_schema.sql`: tables, triggers, XP function
    2. `supabase/migrations/0002_rls.sql`: Row Level Security
    3. `supabase/migrations/0003_storage.sql`: private `screenshots` bucket and its policies
-   4. `supabase/seed.sql`: 12 monsters, quests, achievements (safe to re-run)
+   4. `supabase/migrations/0004_rewards_codex_ai.sql`: gold shop, rewards, playbook, AI usage limiter
+   5. `supabase/seed.sql`: 12 monsters, quests, achievements, shop items (safe to re-run)
+   6. `supabase/seed_academy.sql`: Academy lessons, flashcards, drills (safe to re-run)
 3. Each one should say **Success. No rows returned**.
 
 Check that it worked:

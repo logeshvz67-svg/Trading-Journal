@@ -41,7 +41,8 @@ export type XpReason =
   | 'stop_for_today'
   | 'monster_defeated'
   | 'achievement'
-  | 'quest';
+  | 'quest'
+  | 'flashcards';
 
 export const XP_REASON_LABELS: Record<XpReason, string> = {
   prep: 'Pre-battle prep',
@@ -62,11 +63,14 @@ export const XP_REASON_LABELS: Record<XpReason, string> = {
   monster_defeated: 'Monster defeated',
   achievement: 'Achievement',
   quest: 'Quest complete',
+  flashcards: 'Flashcard review',
 };
 
 export interface XpLine {
   reason: XpReason;
   amount: number;
+  /** Override the default gold (1 per 5 XP), e.g. for quest rewards. */
+  gold?: number;
 }
 
 /** Gold is earned only from positive XP (1 gold per 5 XP) and is never taken away. */

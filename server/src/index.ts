@@ -11,6 +11,9 @@ import { errorHandler } from './lib/http';
 import { meRouter } from './routes/me';
 import { stateRouter } from './routes/state';
 import { tradesRouter } from './routes/trades';
+import { lifeRouter } from './routes/life';
+import { academyRouter } from './routes/academy';
+import { mentorRouter } from './routes/mentor';
 
 const app = express();
 app.set('trust proxy', 1); // Render sits behind a proxy
@@ -27,6 +30,8 @@ app.use(
         styleSrc: ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com'],
         fontSrc: ["'self'", 'https://fonts.gstatic.com'],
         scriptSrc: ["'self'"],
+        workerSrc: ["'self'"],
+        manifestSrc: ["'self'"],
       },
     },
   }),
@@ -53,7 +58,9 @@ app.get('/api/config', (_req, res) => {
 
 // General abuse guard. In-memory counters are fine here: losing them on sleep is harmless.
 app.use('/api', rateLimit({ windowMs: 60_000, limit: 120, standardHeaders: 'draft-7', legacyHeaders: false }));
-app.use('/api', requireUser, meRouter, stateRouter, tradesRouter);
+// The Mentor gets its own tighter burst limit on top of the per-day DB limit.
+app.use('/api/mentor', rateLimit({ windowMs: 60_000, limit: 6, standardHeaders: 'draft-7', legacyHeaders: false }));
+app.use('/api', requireUser, meRouter, stateRouter, tradesRouter, lifeRouter, academyRouter, mentorRouter);
 app.use('/api', (_req, res) => {
   res.status(404).json({ error: 'Unknown API route.' });
 });
@@ -61,7 +68,13 @@ app.use('/api', (_req, res) => {
 // Serve the built React app (single Render service).
 const webDist = path.resolve(process.cwd(), 'web/dist');
 if (fs.existsSync(webDist)) {
-  app.use(express.static(webDist, { index: false, maxAge: '1y', setHeaders: (res, file) => file.endsWith('.html') && res.setHeader('Cache-Control', 'no-cache') }));
+  app.use(
+    express.static(webDist, {
+      index: false,
+      // Only hashed /assets/* are immutable; sw.js, manifest and html must always revalidate.
+      setHeaders: (res, file) => res.setHeader('Cache-Control', file.includes(`${path.sep}assets${path.sep}`) ? 'public, max-age=31536000, immutable' : 'no-cache'),
+    }),
+  );
   app.get('/{*splat}', (_req, res) => {
     res.setHeader('Cache-Control', 'no-cache');
     res.sendFile(path.join(webDist, 'index.html'));

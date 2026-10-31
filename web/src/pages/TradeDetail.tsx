@@ -205,6 +205,21 @@ export default function TradeDetail() {
         )}
       </Card>
 
+      {trade.status === 'closed' && (
+        <div className="grid grid-cols-2 gap-2">
+          <Link to={`/mentor?mode=explain&trade=${trade.id}`} className="btn-ghost text-sm">
+            🧙 Ask the Mentor why
+          </Link>
+          {trade.screenshot_url ? (
+            <Link to={`/mentor?mode=review&shot=${encodeURIComponent(trade.screenshot_url)}`} className="btn-ghost text-sm">
+              🖼️ Review my chart
+            </Link>
+          ) : (
+            <span />
+          )}
+        </div>
+      )}
+
       {trade.armor_report && <ArmorPanel report={trade.armor_report} title="Armor check at entry" />}
 
       <button className="btn-ghost w-full text-sm text-danger" onClick={remove}>

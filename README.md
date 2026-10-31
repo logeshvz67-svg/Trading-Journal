@@ -20,7 +20,8 @@ A game-themed trading **discipline**, journal and learning app for beginner trad
 | Money math | big.js (decimal) | No float drift in lot sizes or P/L |
 | Validation | zod (server) + shared TS rules (client + server) | The armor check and XP are recomputed on the server; the client only previews |
 
-Charts (Recharts) arrive in Phase 2 and will be lazy-loaded, so the first load stays light.
+Charts (Recharts) are lazy-loaded with the Hall of Records page only, so the first load stays light (~140 KB gzipped).
+The AI Mentor uses the official `@anthropic-ai/sdk` on the server only, and is fully optional.
 
 ## Project layout
 
@@ -37,8 +38,9 @@ server/src/        Express API (writes go through here only)
 web/src/           React app
   theme/config.ts  ALL colors, fonts and game labels: restyle here
 supabase/
-  migrations/      0001 schema, 0002 RLS, 0003 storage bucket
-  seed.sql         monsters, quests, achievements
+  migrations/      0001 schema, 0002 RLS, 0003 storage bucket, 0004 rewards/codex/AI limiter
+  seed.sql         monsters, quests, achievements, shop items
+  seed_academy.sql lessons, flashcards, drills (generated)
 docs/              setup, deploy, limits, test checklists
 tests/             unit tests for the shared rules
 ```
@@ -75,6 +77,7 @@ npm run build && npm start   # production build, served on :3000
 - [Deploy to Render](docs/RENDER_DEPLOY.md)
 - [Free-tier limits and what to do when they hit](docs/FREE_TIER_LIMITS.md)
 - [Phase 1 test checklist](docs/TESTING_PHASE1.md)
+- [Phases 2-4 test checklist](docs/TESTING_PHASE2-4.md)
 
 ## XP rules
 
@@ -95,6 +98,10 @@ Gold = 1 per 5 XP earned. Penalties never take gold away.
 ## Build phases
 
 - [x] **Phase 1:** auth, schema + RLS, onboarding, account rules, Risk Forge, Battle Station, Battle Log + screenshots, Boss Arena meters + 90% lockout, monster tags, XP engine, Render deploy
-- [ ] Phase 2: dashboard polish, Campfire cooldowns, Monster Den, quests, streaks, achievements, Hall of Records, CSV export
-- [ ] Phase 3: Training Academy (lessons, quizzes, drills, spaced repetition), Codex
-- [ ] Phase 4: AI Mentor (optional, rate-limited), weekly reports, PWA + notifications
+- [x] **Phase 2:** dashboard polish, Campfire (30-min loss cooldown, 2-loss streak lock, breathing, reflections, Stop for today), Monster Den + trophy room, Quest Board, streaks, achievements, gold shop + real-life rewards, Hall of Records analytics + weekly/monthly reports, CSV export, delete-my-data
+- [x] **Phase 3:** Training Academy (7-zone map; Zones 1-2 fully written with quiz gates, Zones 3-7 outlined), chart drills, flashcards with 1/3/7/14-day spaced repetition, glossary, lesson notes, Codex (Oath, rules earned from mistakes, playbook)
+- [x] **Phase 4:** AI Mentor (ask, chart review, mistake explainer, daily briefing, debrief, pattern spotter), installable PWA, in-app + browser notifications
+
+## Content
+
+Academy lessons, flashcards and drills live in `scripts/academy-content.mjs`. After editing, run `npm run seed:academy` and paste the regenerated `supabase/seed_academy.sql` into the Supabase SQL editor (it is re-runnable and keeps your progress).

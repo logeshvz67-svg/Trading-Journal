@@ -13,6 +13,7 @@ export const LOCK_COPY = {
   danger: 'Danger zone. The Boss Arena is locked for today. Visit the Campfire.',
   drawdown: 'Your Shield is cracking. Trading is locked for today to protect the account. Visit the Campfire.',
   cooldown: 'Take 30 minutes. The market will still be here.',
+  streak: 'Two losses in a row. The loss-streak protocol says: done for today. Tomorrow is a new battle.',
   stopped: 'You called it a day. Rest, warrior. The arena reopens tomorrow.',
 };
 
@@ -37,6 +38,7 @@ export interface RiskState {
   locked: boolean;
   lockMessage: string | null;
   lockEndsAt: string | null;
+  lockReason: string | null;
   cooldowns: Cooldown[];
   tradesToday: number;
   maxTrades: number;
@@ -73,6 +75,7 @@ export async function getRiskState(userId: string, now = new Date()): Promise<Ri
     locked: false,
     lockMessage: null,
     lockEndsAt: null,
+    lockReason: null,
     cooldowns: [],
     tradesToday: 0,
     maxTrades: 0,
@@ -194,6 +197,7 @@ export async function getRiskState(userId: string, now = new Date()): Promise<Ri
     locked: !!lock,
     lockMessage: lock ? lock.message : null,
     lockEndsAt: lock ? lock.endsAt : null,
+    lockReason: lock ? lock.reason : null,
     cooldowns,
     tradesToday,
     maxTrades,
@@ -208,13 +212,14 @@ export async function getRiskState(userId: string, now = new Date()): Promise<Ri
   };
 }
 
-function pickLock(cooldowns: Cooldown[]): { message: string; endsAt: string } | null {
+function pickLock(cooldowns: Cooldown[]): { message: string; endsAt: string; reason: string } | null {
   if (!cooldowns.length) return null;
   const order = ['drawdown_lockout', 'daily_limit_lockout', 'stop_for_today', 'loss_streak', 'loss_cooldown'];
   const sorted = [...cooldowns].sort((a, b) => order.indexOf(a.reason) - order.indexOf(b.reason));
   const c = sorted[0];
   const message =
-    c.reason === 'drawdown_lockout' ? LOCK_COPY.drawdown : c.reason === 'daily_limit_lockout' ? LOCK_COPY.danger : c.reason === 'stop_for_today' ? LOCK_COPY.stopped : LOCK_COPY.cooldown;
+    c.reason === 'drawdown_lockout' ? LOCK_COPY.drawdown : c.reason === 'daily_limit_lockout' ? LOCK_COPY.danger : c.reason === 'stop_for_today' ? LOCK_COPY.stopped : c.reason === 'loss_streak' ? LOCK_COPY.streak : LOCK_COPY.cooldown;
   const endsAt = cooldowns.reduce((m, x) => (x.ends_at > m ? x.ends_at : m), c.ends_at);
-  return { message, endsAt };
+  // The lock lasts until the latest-ending cooldown; the message describes the most serious one.
+  return { message, endsAt, reason: c.reason };
 }

@@ -2,7 +2,8 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useState, t
 import type { Session, SupabaseClient } from '@supabase/supabase-js';
 import { api } from './lib/api';
 import { applyTheme, type ThemeMode } from './theme/config';
-import { setSoundEnabled } from './lib/sound';
+import { playSound, setSoundEnabled } from './lib/sound';
+import { toast } from './components/ui';
 
 export interface Me {
   profile: any;
@@ -34,6 +35,11 @@ export interface RiskState {
   profile: any;
   progress: Me['progress'];
   activeMonster: any | null;
+  lockReason: string | null;
+  streaks: Record<string, number>;
+  quests: any[];
+  achievementsUnlocked: number;
+  notices: { kind: string; text: string }[];
 }
 
 interface Store {
@@ -72,7 +78,13 @@ export function StoreProvider({ sb, children }: { sb: SupabaseClient; children: 
   }, []);
 
   const refreshState = useCallback(async () => {
-    setState(await api<RiskState>('/state'));
+    const s = await api<RiskState>('/state');
+    setState(s);
+    // Quests, achievements and streak changes are announced once, as they happen.
+    for (const n of s.notices ?? []) {
+      toast(n.text, n.kind === 'streak_lost' ? 'info' : 'ok');
+      playSound(n.kind === 'streak_lost' ? 'bad' : 'level');
+    }
   }, []);
 
   useEffect(() => {

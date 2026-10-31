@@ -5,10 +5,12 @@ import { useStore } from '../store';
 import { theme } from '../theme/config';
 import { countdown, usd } from '../lib/format';
 import { Meter } from './ui';
+import { avatarEmoji, frameRing } from '../lib/avatar';
+import { computeReminders, fireNewReminders, showSystemNotification } from '../lib/reminders';
 
 /** Always-visible risk meters. Game visuals never cover these. */
 export function RiskBar() {
-  const { state, me } = useStore();
+  const { state } = useStore();
   const [now, setNow] = useState(Date.now());
   useEffect(() => {
     if (!state?.lockEndsAt) return;
@@ -19,13 +21,12 @@ export function RiskBar() {
 
   const hpPct = 100 - state.daily.pct;
   const shPct = 100 - state.drawdown.pct;
-  const avatar = theme.avatars.find((a) => a.id === me?.profile.avatar)?.emoji ?? '🛡️';
   return (
     <div className="sticky top-0 z-40 border-b border-border bg-bg/95 backdrop-blur">
       <div className="mx-auto max-w-3xl px-4 pb-2.5 pt-[max(.6rem,env(safe-area-inset-top))]">
         <div className="mb-2 flex items-center justify-between text-xs">
           <Link to="/" className="flex items-center gap-1.5 font-semibold">
-            <span className="text-base">{avatar}</span>
+            <span className={`rounded-full text-base ${frameRing(state.profile)}`}>{avatarEmoji(state.profile)}</span>
             <span>
               Lv {state.progress.level} · {state.progress.rank}
             </span>
@@ -62,14 +63,35 @@ const NAV = [
   { to: '/', icon: '🏰', label: 'Home', end: true },
   { to: '/battle', icon: '⚔️', label: 'Battle' },
   { to: '/log', icon: '📜', label: 'Log' },
-  { to: '/boss', icon: '👑', label: 'Boss' },
+  { to: '/academy', icon: '🎓', label: 'Academy' },
   { to: '/more', icon: '☰', label: 'More' },
 ];
+
+/** Evaluates reminders and the cooldown-end alert in the browser (no server timers). */
+function ReminderRunner() {
+  const { state, me, refreshState } = useStore();
+  const enabled = !!me?.profile.settings?.notifications?.enabled;
+  useEffect(() => {
+    fireNewReminders(computeReminders(state, me), enabled);
+  }, [state, me, enabled]);
+  useEffect(() => {
+    if (!state?.locked || !state.lockEndsAt) return;
+    const ms = new Date(state.lockEndsAt).getTime() - Date.now();
+    if (ms <= 0 || ms > 6 * 3600_000) return;
+    const t = setTimeout(() => {
+      refreshState().catch(() => {});
+      if (enabled) showSystemNotification('Market Quest', 'Cooldown over. The arena is open again: A+ setups only.', `cool-${state.lockEndsAt}`, '/battle');
+    }, ms + 1500);
+    return () => clearTimeout(t);
+  }, [state?.locked, state?.lockEndsAt, enabled, refreshState]);
+  return null;
+}
 
 export function Layout() {
   return (
     <div className="flex min-h-screen flex-col">
       <RiskBar />
+      <ReminderRunner />
       <main className="mx-auto w-full max-w-3xl flex-1 px-4 pb-28 pt-4">
         <Outlet />
         <footer className="mt-10 border-t border-border pt-4 text-center text-xs text-muted">

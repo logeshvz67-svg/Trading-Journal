@@ -58,3 +58,32 @@ export function startOfNextLocalDay(date: Date, tz: string): Date {
 export function minutesBetween(a: Date, b: Date): number {
   return (b.getTime() - a.getTime()) / 60000;
 }
+
+/** ISO week key like "2026-W44" for the local date of `date` in tz. */
+export function isoWeekKey(date: Date, tz: string): string {
+  const [y, m, d] = localDateKey(date, tz).split('-').map(Number);
+  const t = new Date(Date.UTC(y, m - 1, d));
+  const day = t.getUTCDay() || 7;
+  t.setUTCDate(t.getUTCDate() + 4 - day);
+  const yearStart = Date.UTC(t.getUTCFullYear(), 0, 1);
+  const week = Math.ceil(((t.getTime() - yearStart) / 86400000 + 1) / 7);
+  return `${t.getUTCFullYear()}-W${String(week).padStart(2, '0')}`;
+}
+
+/** Previous calendar day for a YYYY-MM-DD key. */
+export function prevDateKey(key: string): string {
+  const [y, m, d] = key.split('-').map(Number);
+  const t = new Date(Date.UTC(y, m - 1, d - 1));
+  return t.toISOString().slice(0, 10);
+}
+
+/** Count consecutive days ending today (or yesterday, so a streak isn't "lost" before the day is over). */
+export function dayStreak(days: Set<string>, today: string): number {
+  let cursor = days.has(today) ? today : prevDateKey(today);
+  let n = 0;
+  while (days.has(cursor)) {
+    n++;
+    cursor = prevDateKey(cursor);
+  }
+  return n;
+}

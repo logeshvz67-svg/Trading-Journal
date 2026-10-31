@@ -17,6 +17,17 @@ const Campfire = lazy(() => import('./pages/Campfire'));
 const More = lazy(() => import('./pages/More'));
 const Settings = lazy(() => import('./pages/Settings'));
 const Disclaimer = lazy(() => import('./pages/Disclaimer'));
+const Monsters = lazy(() => import('./pages/Monsters'));
+const Quests = lazy(() => import('./pages/Quests'));
+const Rewards = lazy(() => import('./pages/Rewards'));
+const Records = lazy(() => import('./pages/Records'));
+const Academy = lazy(() => import('./pages/Academy'));
+const Lesson = lazy(() => import('./pages/Lesson'));
+const Flashcards = lazy(() => import('./pages/Flashcards'));
+const Drills = lazy(() => import('./pages/Drills'));
+const Glossary = lazy(() => import('./pages/Glossary'));
+const Codex = lazy(() => import('./pages/Codex'));
+const Mentor = lazy(() => import('./pages/Mentor'));
 
 export function App() {
   const { session, me } = useStore();
@@ -50,6 +61,18 @@ export function App() {
               <Route path="more" element={<More />} />
               <Route path="settings" element={<Settings />} />
               <Route path="disclaimer" element={<Disclaimer />} />
+              <Route path="monsters" element={<Monsters />} />
+              <Route path="quests" element={<Quests />} />
+              <Route path="rewards" element={<Rewards />} />
+              <Route path="records" element={<Records />} />
+              <Route path="academy" element={<Academy />} />
+              <Route path="academy/lesson/:id" element={<Lesson />} />
+              <Route path="academy/cards" element={<Flashcards />} />
+              <Route path="academy/drills" element={<Drills />} />
+              <Route path="academy/drills/:id" element={<Drills />} />
+              <Route path="academy/glossary" element={<Glossary />} />
+              <Route path="codex" element={<Codex />} />
+              <Route path="mentor" element={<Mentor />} />
               <Route path="*" element={<Navigate to="/" replace />} />
             </Route>
           </Routes>

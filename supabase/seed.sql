@@ -109,3 +109,19 @@ insert into public.achievements (id, name, description, icon, xp_reward, sort_or
 on conflict (id) do update set
   name = excluded.name, description = excluded.description, icon = excluded.icon,
   xp_reward = excluded.xp_reward, sort_order = excluded.sort_order;
+
+-- Gold shop: cosmetics only. Nothing here changes risk limits or rules.
+insert into public.shop_items (id, kind, name, description, value, price, sort_order) values
+('title-patient', 'title', 'Title: the Patient', 'Shown under your name.', 'the Patient', 30, 1),
+('title-stoic', 'title', 'Title: the Stoic', 'For those who feel and still follow the plan.', 'the Stoic', 60, 2),
+('title-goblin-bane', 'title', 'Title: Goblin-Bane', 'Feared by Revenge Goblins.', 'Goblin-Bane', 100, 3),
+('title-keeper', 'title', 'Title: Keeper of the Oath', 'A promise kept is power.', 'Keeper of the Oath', 200, 4),
+('frame-ember', 'frame', 'Ember frame', 'A warm glow around your avatar.', 'gold', 40, 10),
+('frame-frost', 'frame', 'Frost frame', 'Cool head, cool frame.', 'shield', 40, 11),
+('frame-arcane', 'frame', 'Arcane frame', 'For students of the Academy.', 'focus', 80, 12),
+('avatar-owl', 'avatar', 'Owl Sage', 'Watches more than it acts.', '🦉', 50, 20),
+('avatar-turtle', 'avatar', 'Iron Turtle', 'Slow and steady keeps the account alive.', '🐢', 50, 21),
+('avatar-wolf', 'avatar', 'Lone Wolf', 'Patient hunter.', '🐺', 90, 22),
+('avatar-phoenix', 'avatar', 'Phoenix', 'Rises after every drawdown.', '🐦‍🔥', 150, 23)
+on conflict (id) do update set kind = excluded.kind, name = excluded.name, description = excluded.description,
+  value = excluded.value, price = excluded.price, sort_order = excluded.sort_order;
