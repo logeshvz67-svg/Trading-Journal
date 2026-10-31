@@ -7,7 +7,8 @@ beforeAll(async () => {
   process.env.SUPABASE_ANON_KEY = 'anon';
   process.env.SUPABASE_SERVICE_ROLE_KEY = 'svc';
   process.env.OPENROUTER_API_KEY = 'or-test-key';
-  process.env.OPENROUTER_MODEL = 'nvidia/nemotron-vl:free, nvidia/nemotron-text:free';
+  process.env.OPENROUTER_MODEL = 'nvidia/nemotron-ultra:free, nvidia/nemotron-text:free';
+  process.env.OPENROUTER_VISION_MODEL = 'nvidia/nemotron-vl:free';
   process.env.AI_MAX_TOKENS = '900';
   ai = await import('../server/src/services/ai');
 });
@@ -30,11 +31,20 @@ describe('OpenRouter mentor provider', () => {
     expect(url).toBe('https://openrouter.ai/api/v1/chat/completions');
     expect((init.headers as Record<string, string>).Authorization).toBe('Bearer or-test-key');
     const body = JSON.parse(String(init.body));
-    expect(body.model).toBe('nvidia/nemotron-vl:free');
-    expect(body.models).toEqual(['nvidia/nemotron-vl:free', 'nvidia/nemotron-text:free']);
+    expect(body.model).toBe('nvidia/nemotron-vl:free'); // image -> vision model
+    expect(body.models).toBeUndefined();
     expect(body.messages[0].content).toBe('SYS\n/no_think');
     expect(body.max_tokens).toBe(900);
     expect(body.messages[1].content[1]).toEqual({ type: 'image_url', image_url: { url: 'data:image/jpeg;base64,QUJD' } });
+  });
+
+  it('uses the text model chain for normal questions', async () => {
+    const fetchMock = reply({ choices: [{ message: { content: 'ok' }, finish_reason: 'stop' }] });
+    vi.stubGlobal('fetch', fetchMock);
+    await ai.complete('S', [{ role: 'user', text: 'What is support?' }]);
+    const body = JSON.parse(String((fetchMock.mock.calls[0] as unknown as [string, RequestInit])[1].body));
+    expect(body.model).toBe('nvidia/nemotron-ultra:free');
+    expect(body.models).toEqual(['nvidia/nemotron-ultra:free', 'nvidia/nemotron-text:free']);
   });
 
   it('hides <think> reasoning and reports unknown models clearly', async () => {

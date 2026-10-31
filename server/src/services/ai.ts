@@ -36,7 +36,8 @@ export async function complete(system: string, turns: ChatTurn[]): Promise<AiRes
 
 // ---------- OpenRouter (OpenAI-style chat completions)
 async function openRouter(system: string, turns: ChatTurn[]): Promise<AiResult> {
-  const models = config.openrouterModels;
+  const hasImage = turns.some((t) => t.imageBase64Jpeg);
+  const models = hasImage ? config.openrouterVisionModels : config.openrouterModels;
   // Nemotron models "think" out loud by default; /no_think keeps answers short and inside the token cap.
   const sys = models.some((m) => m.includes('nemotron')) ? `${system}\n/no_think` : system;
   const messages = [
