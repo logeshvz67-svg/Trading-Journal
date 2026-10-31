@@ -53,7 +53,7 @@ app.get('/health/db', async (_req, res) => {
 
 // Public config for the browser: ONLY the URL and anon key (safe by design, protected by RLS).
 app.get('/api/config', (_req, res) => {
-  res.json({ supabaseUrl: config.supabaseUrl, supabaseAnonKey: config.supabaseAnonKey, aiEnabled: !!config.aiApiKey });
+  res.json({ supabaseUrl: config.supabaseUrl, supabaseAnonKey: config.supabaseAnonKey, aiEnabled: !!(config.aiApiKey || config.openrouterKey) });
 });
 
 // General abuse guard. In-memory counters are fine here: losing them on sleep is harmless.

@@ -13,6 +13,9 @@ export const config = {
   supabaseServiceKey: required('SUPABASE_SERVICE_ROLE_KEY'),
   // Optional: the app works fully without AI (Phase 4).
   aiApiKey: process.env.ANTHROPIC_API_KEY || '',
+  // OpenRouter takes priority when set. Pick a model id from https://openrouter.ai/models
+  openrouterKey: process.env.OPENROUTER_API_KEY || '',
+  openrouterModel: process.env.OPENROUTER_MODEL || 'openrouter/auto',
   aiDailyLimit: Number(process.env.AI_DAILY_LIMIT || 20),
   aiMaxTokens: Number(process.env.AI_MAX_TOKENS || 1500),
   aiModel: process.env.AI_MODEL || 'claude-opus-5-5',

@@ -15,7 +15,7 @@ One web service runs the Express API **and** serves the built React app. No Rend
    - `SUPABASE_URL`
    - `SUPABASE_ANON_KEY`
    - `SUPABASE_SERVICE_ROLE_KEY`
-   - `ANTHROPIC_API_KEY`: optional. Leave blank to run without the AI Mentor; add it any time later (see below)
+   - `OPENROUTER_API_KEY` / `ANTHROPIC_API_KEY`: optional. Leave blank to run without the AI Mentor; add one any time later (see below)
 4. Click **Apply**. The first build takes about 3-5 minutes.
 
 ## Option B: Manual web service
@@ -69,6 +69,15 @@ Push to `main` and Render auto-deploys (`autoDeploy: true`). Each deploy restart
 | Screenshot upload fails | Run `0003_storage.sql` and check that the `screenshots` bucket exists |
 
 ## Turning on the AI Mentor (optional)
+
+### With OpenRouter (recommended if you already use it)
+
+1. At https://openrouter.ai, go to **Keys** and create a key. Add a few dollars of credit, and set a credit limit on the key.
+2. In Render → your service → **Environment**, set `OPENROUTER_API_KEY` to that key.
+3. Optional: set `OPENROUTER_MODEL` to a specific model id from https://openrouter.ai/models (e.g. an Anthropic Claude model). For chart reviews, choose a model that accepts images. The default `openrouter/auto` lets OpenRouter pick.
+4. Save; Render redeploys. If both keys are set, OpenRouter is used.
+
+### With Anthropic directly
 
 1. Create an API key at https://console.anthropic.com (Settings → API Keys) and add a small monthly spend limit there.
 2. In Render → your service → **Environment**, set `ANTHROPIC_API_KEY`. The defaults are already set: `AI_MODEL=claude-opus-5-5`, `AI_DAILY_LIMIT=20` calls per user per day, and `AI_MAX_TOKENS=1500` per reply.

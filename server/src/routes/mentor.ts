@@ -1,6 +1,5 @@
 // Phase 4: AI Mentor. Optional (the app works without a key), server-side only,
 // rate-limited per user per day in the DB, and capped in tokens per call.
-import Anthropic from '@anthropic-ai/sdk';
 import { Router } from 'express';
 import { z } from 'zod';
 import { localDateKey } from '@shared/time';
@@ -9,10 +8,10 @@ import { admin } from '../lib/supabase';
 import { bad, HttpError, must, notFound, parse, wrap } from '../lib/http';
 import { getProfile } from '../services/context';
 import { getRiskState } from '../services/riskState';
+import { AiError, aiProvider, complete, type ChatTurn } from '../services/ai';
 
 export const mentorRouter = Router();
 
-const client = config.aiApiKey ? new Anthropic({ apiKey: config.aiApiKey, maxRetries: 1, timeout: 60_000 }) : null;
 
 const SYSTEM = `You are the Mentor in Market Quest, a game-themed trading discipline and journaling app for a BEGINNER trader.
 The trader knows only: bullish/bearish candles, support/resistance, and trendlines. They trade a $5k prop firm account.
@@ -57,7 +56,7 @@ const bodySchema = z.object({
 mentorRouter.get(
   '/mentor/status',
   wrap(async (req, res) => {
-    if (!client) return res.json({ enabled: false, used: 0, limit: config.aiDailyLimit });
+    if (!aiProvider) return res.json({ enabled: false, used: 0, limit: config.aiDailyLimit });
     const profile = await getProfile(req.userId);
     const today = localDateKey(new Date(), profile.timezone || 'UTC');
     const row = must(await admin.from('ai_usage').select('count').eq('user_id', req.userId).eq('usage_date', today).maybeSingle()) as { count: number } | null;
@@ -68,7 +67,7 @@ mentorRouter.get(
 mentorRouter.post(
   '/mentor',
   wrap(async (req, res) => {
-    if (!client) throw new HttpError(503, 'The Mentor is not configured on this server. Everything else works without it.', 'ai_disabled');
+    if (!aiProvider) throw new HttpError(503, 'The Mentor is not configured on this server. Everything else works without it.', 'ai_disabled');
     const body = parse(bodySchema, req.body);
     if ((body.mode === 'ask' || body.mode === 'explain') && !body.message && !body.history.length) throw bad('Ask the Mentor something first.');
 
@@ -77,13 +76,13 @@ mentorRouter.post(
 
     // Build the trader's own context first (fails fast before spending a call).
     const context = await buildContext(req.userId, body);
-    let image: Anthropic.Beta.BetaImageBlockParam | null = null;
+    let image: string | null = null;
     if (body.screenshot_path) {
       if (!body.screenshot_path.startsWith(`${req.userId}/`) || body.screenshot_path.includes('..')) throw bad('Invalid screenshot.');
       const { data, error } = await admin.storage.from('screenshots').download(body.screenshot_path);
       if (error || !data) throw notFound('Screenshot not found.');
       if (data.size > 1_500_000) throw bad('Screenshot too large.');
-      image = { type: 'image', source: { type: 'base64', media_type: 'image/jpeg', data: Buffer.from(await data.arrayBuffer()).toString('base64') } };
+      image = Buffer.from(await data.arrayBuffer()).toString('base64');
     }
 
     // Atomic per-user daily limit, stored in the DB so it survives restarts and sleep.
@@ -95,40 +94,30 @@ mentorRouter.post(
     const firstText = [`Mode: ${body.mode}. ${MODE_GUIDE[body.mode]}`, context ? `\n<trader_data>\n${context}\n</trader_data>` : '', body.message ? `\n\nTrader: ${body.message}` : '']
       .join('')
       .trim();
-    const messages: Anthropic.Beta.BetaMessageParam[] = body.history.length
-      ? [
-          { role: 'user', content: `Mode: ${body.mode}. ${MODE_GUIDE[body.mode]}${context ? `\n<trader_data>\n${context}\n</trader_data>` : ''}` },
-          ...body.history,
-          ...(body.message ? [{ role: 'user' as const, content: body.message }] : []),
-        ]
-      : [{ role: 'user', content: image ? [image, { type: 'text', text: firstText }] : firstText }];
+    const contextBlock = `Mode: ${body.mode}. ${MODE_GUIDE[body.mode]}${context ? `\n<trader_data>\n${context}\n</trader_data>` : ''}`;
+    const turns: ChatTurn[] = body.history.length
+      ? [{ role: 'user', text: contextBlock }, ...body.history.map((h) => ({ role: h.role, text: h.content })), ...(body.message ? [{ role: 'user' as const, text: body.message }] : [])]
+      : [{ role: 'user', text: firstText, imageBase64Jpeg: image ?? undefined }];
 
     try {
-      const response = await client.beta.messages.create({
-        model: config.aiModel,
-        max_tokens: config.aiMaxTokens,
-        system: SYSTEM,
-        output_config: { effort: 'low' },
-        betas: ['server-side-fallback-2026-07-01'],
-        fallbacks: 'default',
-        messages,
-      });
-      await admin.rpc('ai_add_tokens', { p_user: req.userId, p_date: today, p_tokens: response.usage.input_tokens + response.usage.output_tokens });
-
-      if (response.stop_reason === 'refusal') {
+      const out = await complete(SYSTEM, turns);
+      await admin.rpc('ai_add_tokens', { p_user: req.userId, p_date: today, p_tokens: out.tokens });
+      if (out.refused) {
         return res.json({ reply: "I can't help with that one. Let's keep to your process: your rules, your journal, your risk.", used: count, limit: config.aiDailyLimit });
       }
-      let reply = response.content
-        .filter((b): b is Anthropic.Beta.BetaTextBlock => b.type === 'text')
-        .map((b) => b.text)
-        .join('\n')
-        .trim();
-      if (response.stop_reason === 'max_tokens') reply += '\n\n(The Mentor ran out of breath. Ask a follow-up to continue.)';
+      let reply = out.text;
+      if (out.truncated) reply += '\n\n(The Mentor ran out of breath. Ask a follow-up to continue.)';
       res.json({ reply: reply || '…', used: count, limit: config.aiDailyLimit });
     } catch (e) {
-      if (e instanceof Anthropic.RateLimitError) throw new HttpError(503, 'The Mentor is busy right now. Try again in a minute.', 'ai_busy');
-      if (e instanceof Anthropic.AuthenticationError) throw new HttpError(503, 'The Mentor key on the server is invalid. Check ANTHROPIC_API_KEY on Render.', 'ai_auth');
-      if (e instanceof Anthropic.APIError) throw new HttpError(502, 'The Mentor could not answer. Please try again.', 'ai_error');
+      if (e instanceof AiError) {
+        const msg = {
+          busy: 'The Mentor is busy right now. Try again in a minute.',
+          auth: 'The Mentor key on the server is invalid. Check the AI key in Render → Environment.',
+          credits: 'The AI account is out of credits. Top up on openrouter.ai, then try again.',
+          other: 'The Mentor could not answer. Please try again.',
+        }[e.kind];
+        throw new HttpError(e.kind === 'other' ? 502 : 503, msg, `ai_${e.kind}`);
+      }
       throw e;
     }
   }),

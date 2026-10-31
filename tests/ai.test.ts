@@ -1,0 +1,47 @@
+import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest';
+
+let ai: typeof import('../server/src/services/ai');
+
+beforeAll(async () => {
+  process.env.SUPABASE_URL = 'https://x.supabase.co';
+  process.env.SUPABASE_ANON_KEY = 'anon';
+  process.env.SUPABASE_SERVICE_ROLE_KEY = 'svc';
+  process.env.OPENROUTER_API_KEY = 'or-test-key';
+  process.env.OPENROUTER_MODEL = 'some/vision-model';
+  process.env.AI_MAX_TOKENS = '900';
+  ai = await import('../server/src/services/ai');
+});
+
+afterEach(() => vi.unstubAllGlobals());
+
+const reply = (body: unknown, status = 200) => vi.fn(async () => new Response(JSON.stringify(body), { status, headers: { 'content-type': 'application/json' } }));
+
+describe('OpenRouter mentor provider', () => {
+  it('is selected when OPENROUTER_API_KEY is set', () => {
+    expect(ai.aiProvider).toBe('openrouter');
+  });
+
+  it('sends system prompt, image as data URI, model and token cap', async () => {
+    const fetchMock = reply({ choices: [{ message: { content: 'Support is a floor.' }, finish_reason: 'stop' }], usage: { prompt_tokens: 100, completion_tokens: 20 } });
+    vi.stubGlobal('fetch', fetchMock);
+    const out = await ai.complete('SYS', [{ role: 'user', text: 'Review', imageBase64Jpeg: 'QUJD' }]);
+    expect(out).toEqual({ text: 'Support is a floor.', truncated: false, refused: false, tokens: 120 });
+    const [url, init] = fetchMock.mock.calls[0] as unknown as [string, RequestInit];
+    expect(url).toBe('https://openrouter.ai/api/v1/chat/completions');
+    expect((init.headers as Record<string, string>).Authorization).toBe('Bearer or-test-key');
+    const body = JSON.parse(String(init.body));
+    expect(body.model).toBe('some/vision-model');
+    expect(body.max_tokens).toBe(900);
+    expect(body.messages[0]).toEqual({ role: 'system', content: 'SYS' });
+    expect(body.messages[1].content[1]).toEqual({ type: 'image_url', image_url: { url: 'data:image/jpeg;base64,QUJD' } });
+  });
+
+  it('flags cut-off answers and maps errors', async () => {
+    vi.stubGlobal('fetch', reply({ choices: [{ message: { content: 'long…' }, finish_reason: 'length' }] }));
+    expect((await ai.complete('S', [{ role: 'user', text: 'x' }])).truncated).toBe(true);
+    vi.stubGlobal('fetch', reply({ error: { message: 'Insufficient credits' } }, 402));
+    await expect(ai.complete('S', [{ role: 'user', text: 'x' }])).rejects.toMatchObject({ kind: 'credits' });
+    vi.stubGlobal('fetch', reply({ error: { message: 'bad key' } }, 401));
+    await expect(ai.complete('S', [{ role: 'user', text: 'x' }])).rejects.toMatchObject({ kind: 'auth' });
+  });
+});

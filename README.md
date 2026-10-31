@@ -21,7 +21,7 @@ A game-themed trading **discipline**, journal and learning app for beginner trad
 | Validation | zod (server) + shared TS rules (client + server) | The armor check and XP are recomputed on the server; the client only previews |
 
 Charts (Recharts) are lazy-loaded with the Hall of Records page only, so the first load stays light (~140 KB gzipped).
-The AI Mentor uses the official `@anthropic-ai/sdk` on the server only, and is fully optional.
+The AI Mentor runs on the server only and is fully optional: set `OPENROUTER_API_KEY` (any OpenRouter model) or `ANTHROPIC_API_KEY` (official `@anthropic-ai/sdk`).
 
 ## Project layout
 
