@@ -1,0 +1,69 @@
+# Deploy to Render (free web service)
+
+One web service runs the Express API **and** serves the built React app. No Render database is used; Render's free Postgres expires, so all data lives in Supabase.
+
+## 0. Prerequisites
+
+- Supabase is set up ([SUPABASE_SETUP.md](SUPABASE_SETUP.md)) and you have the 3 keys.
+- This code is pushed to your GitHub repo (e.g. `logeshvz67-svg/Trading-Journal`).
+
+## Option A: Blueprint (recommended, uses `render.yaml`)
+
+1. Go to https://dashboard.render.com, then **New + → Blueprint**.
+2. Connect GitHub and pick the repo. Render reads `render.yaml`.
+3. It asks for the env vars marked `sync: false`:
+   - `SUPABASE_URL`
+   - `SUPABASE_ANON_KEY`
+   - `SUPABASE_SERVICE_ROLE_KEY`
+   - `ANTHROPIC_API_KEY`: **leave blank** (the AI Mentor is optional and arrives in Phase 4)
+4. Click **Apply**. The first build takes about 3-5 minutes.
+
+## Option B: Manual web service
+
+**New + → Web Service** → pick the repo, then:
+
+| Setting | Value |
+| --- | --- |
+| Runtime | Node |
+| Branch | `main` |
+| Build command | `npm ci --include=dev && npm run build` |
+| Start command | `npm start` |
+| Instance type | **Free** |
+| Health check path | `/health` (under Advanced) |
+
+Environment variables: `NODE_VERSION=22`, `NODE_ENV=production`, plus the 3 Supabase vars above.
+
+> `--include=dev` matters: Render sets `NODE_ENV=production`, which would otherwise skip the build tools (Vite, esbuild).
+
+## After the first deploy
+
+1. Copy your URL, e.g. `https://market-quest.onrender.com`.
+2. In Supabase, go to **Authentication → URL Configuration**. Set **Site URL** to that URL and add `https://market-quest.onrender.com/**` to the redirect URLs.
+3. Open the URL. You'll see the **"Waking the server"** screen on a cold start, then the login page.
+4. Sign up, confirm your email (if enabled), and complete onboarding.
+5. Back in Supabase, **turn off new sign-ups** (see SUPABASE_SETUP step 3).
+
+## Keep it awake with UptimeRobot (free)
+
+Render free services sleep after about 15 minutes idle, and the next visit takes 30-60 seconds to wake. Supabase free projects pause after 7 days with no activity.
+
+1. Sign up at https://uptimerobot.com (free plan).
+2. **Add New Monitor** → type **HTTP(s)**.
+3. URL: `https://market-quest.onrender.com/health/db`. This endpoint runs one tiny DB query, so it keeps **both** Render and Supabase active.
+4. Interval: **5 minutes**. Save.
+
+Render's free plan includes 750 instance-hours per month, enough to keep one service up 24/7 (~744 h). Don't keep a *second* free service awake on the same account.
+
+## Updating
+
+Push to `main` and Render auto-deploys (`autoDeploy: true`). Each deploy restarts the service. Nothing is lost, because all state lives in Supabase.
+
+## Troubleshooting
+
+| Symptom | Fix |
+| --- | --- |
+| Build fails at `vite: not found` | The build command must include `--include=dev` |
+| Logs show `Missing required environment variable` | Add the env var in Render → Environment, then **Manual Deploy** |
+| Login works but every API call says "session expired" | `SUPABASE_URL` or the keys belong to a different project. Re-copy all 3 |
+| Email confirmation link opens localhost | Set the Site URL in Supabase to your Render URL |
+| Screenshot upload fails | Run `0003_storage.sql` and check that the `screenshots` bucket exists |

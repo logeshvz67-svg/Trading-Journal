@@ -13,8 +13,7 @@
     "isolatedModules": true,
     "noEmit": true,
     "types": ["node", "vite/client"],
-    "baseUrl": ".",
-    "paths": { "@shared/*": ["shared/*"] }
+    "paths": { "@shared/*": ["./shared/*"] }
   },
   "include": ["shared", "server/src", "web/src", "web/vite.config.ts", "tests"]
 }
