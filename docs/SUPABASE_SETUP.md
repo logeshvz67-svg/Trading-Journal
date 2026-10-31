@@ -11,6 +11,10 @@ Takes about 10 minutes. Supabase's dashboard changes now and then, so menu names
 
 ## 2. Run the migrations
 
+**Easiest (fresh project):** open **SQL Editor**, then **New query**. Paste the whole of `supabase/ALL_IN_ONE.sql` and click **Run**. That's everything below in one go.
+
+**Or file by file:**
+
 1. Open **SQL Editor**, then **New query**.
 2. Paste the full contents of each file below, in this order, and click **Run** after each one:
    1. `supabase/migrations/0001_schema.sql`: tables, triggers, XP function
