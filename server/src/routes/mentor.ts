@@ -111,13 +111,15 @@ mentorRouter.post(
     } catch (e) {
       if (e instanceof AiError) {
         const msg = {
-          busy: 'The Mentor is busy right now. Try again in a minute.',
-          auth: 'The Mentor key on the server is invalid. Check the AI key in Render → Environment.',
+          busy: 'The Mentor is busy right now (free models have rate limits). Try again in a minute.',
+          auth: 'The AI key on the server was rejected. Check OPENROUTER_API_KEY in Render → Environment.',
           credits: 'The AI account is out of credits. Top up on openrouter.ai, then try again.',
-          model: 'The AI model name on the server is not available. Check OPENROUTER_MODEL in Render → Environment (see openrouter.ai/models).',
-          other: 'The Mentor could not answer. Please try again.',
+          privacy: 'OpenRouter is blocking free models because of your privacy settings. Open openrouter.ai/settings/privacy and allow free endpoints that may log/train on prompts.',
+          model: 'The AI model is not available.',
+          other: 'The Mentor could not answer.',
         }[e.kind];
-        throw new HttpError(e.kind === 'other' ? 502 : 503, msg, `ai_${e.kind}`);
+        // Include OpenRouter's own reason (never contains secrets) so problems are easy to fix.
+        throw new HttpError(e.kind === 'other' || e.kind === 'model' ? 502 : 503, e.kind === 'model' || e.kind === 'other' ? `${msg} OpenRouter says: ${e.message.slice(0, 300)}` : msg, `ai_${e.kind}`);
       }
       throw e;
     }

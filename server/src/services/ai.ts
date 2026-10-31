@@ -19,7 +19,7 @@ export interface AiResult {
 }
 
 export class AiError extends Error {
-  constructor(public kind: 'busy' | 'auth' | 'credits' | 'model' | 'other', message: string) {
+  constructor(public kind: 'busy' | 'auth' | 'credits' | 'model' | 'privacy' | 'other', message: string) {
     super(message);
   }
 }
@@ -54,6 +54,22 @@ async function openRouter(system: string, turns: ChatTurn[]): Promise<AiResult> 
         : { role: t.role, content: t.text },
     ),
   ];
+  // Try each model in order. A bad/unavailable model only skips to the next one; key and
+  // credit problems stop immediately (another model won't fix them).
+  let lastError: AiError | null = null;
+  for (const model of models) {
+    try {
+      return await openRouterOnce(model, messages);
+    } catch (e) {
+      if (!(e instanceof AiError) || e.kind === 'auth' || e.kind === 'credits') throw e;
+      console.warn(`[mentor] OpenRouter model ${model} failed: ${e.message}`);
+      lastError = e;
+    }
+  }
+  throw lastError ?? new AiError('other', 'No OpenRouter model configured.');
+}
+
+async function openRouterOnce(model: string, messages: unknown[]): Promise<AiResult> {
   let res: Response;
   try {
     res = await fetch('https://openrouter.ai/api/v1/chat/completions', {
@@ -63,8 +79,7 @@ async function openRouter(system: string, turns: ChatTurn[]): Promise<AiResult> 
         'Content-Type': 'application/json',
         'X-Title': 'Market Quest',
       },
-      // `models` = OpenRouter fallback routing: if the first is down or rate-limited, it tries the next.
-      body: JSON.stringify({ model: models[0], ...(models.length > 1 ? { models } : {}), messages, max_tokens: config.aiMaxTokens, reasoning: { exclude: true } }),
+      body: JSON.stringify({ model, messages, max_tokens: config.aiMaxTokens }),
       signal: AbortSignal.timeout(60_000),
     });
   } catch {
@@ -73,17 +88,20 @@ async function openRouter(system: string, turns: ChatTurn[]): Promise<AiResult> 
   const data: any = await res.json().catch(() => null);
   if (!res.ok || data?.error) {
     const status = res.ok ? Number(data?.error?.code) || 500 : res.status;
-    if (status === 401 || status === 403) throw new AiError('auth', 'OpenRouter key rejected.');
-    if (status === 402) throw new AiError('credits', 'OpenRouter account is out of credits.');
-    if (status === 429 || status >= 500) throw new AiError('busy', 'OpenRouter is busy.');
-    if ((status === 400 || status === 404) && /model/i.test(String(data?.error?.message))) throw new AiError('model', String(data?.error?.message));
-    throw new AiError('other', data?.error?.message ?? `OpenRouter error ${status}`);
+    const msg = String(data?.error?.message ?? `OpenRouter error ${status}`);
+    if (status === 401) throw new AiError('auth', msg);
+    if (status === 402) throw new AiError('credits', msg);
+    // Free models that log prompts are blocked until allowed in OpenRouter's privacy settings.
+    if (/data policy|privacy|training|publication/i.test(msg)) throw new AiError('privacy', msg);
+    if (status === 429 || status >= 500) throw new AiError('busy', msg);
+    if (status === 400 || status === 403 || status === 404) throw new AiError('model', `${model}: ${msg}`);
+    throw new AiError('other', msg);
   }
   const choice = data?.choices?.[0];
   const content = choice?.message?.content;
   const text = typeof content === 'string' ? content : Array.isArray(content) ? content.map((c: any) => c?.text ?? '').join('') : '';
   return {
-    // Some models still wrap private reasoning in <think> tags; never show that to the trader.
+    // Some models wrap private reasoning in <think> tags; never show that to the trader.
     text: text.replace(/<think>[\s\S]*?(<\/think>|$)/g, '').trim(),
     truncated: choice?.finish_reason === 'length',
     refused: choice?.finish_reason === 'content_filter',

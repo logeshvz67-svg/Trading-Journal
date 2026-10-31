@@ -44,7 +44,6 @@ describe('OpenRouter mentor provider', () => {
     await ai.complete('S', [{ role: 'user', text: 'What is support?' }]);
     const body = JSON.parse(String((fetchMock.mock.calls[0] as unknown as [string, RequestInit])[1].body));
     expect(body.model).toBe('nvidia/nemotron-ultra:free');
-    expect(body.models).toEqual(['nvidia/nemotron-ultra:free', 'nvidia/nemotron-text:free']);
   });
 
   it('hides <think> reasoning and reports unknown models clearly', async () => {
@@ -52,6 +51,21 @@ describe('OpenRouter mentor provider', () => {
     expect((await ai.complete('S', [{ role: 'user', text: 'x' }])).text).toBe('Support is a floor.');
     vi.stubGlobal('fetch', reply({ error: { message: 'nvidia/x is not a valid model ID' } }, 400));
     await expect(ai.complete('S', [{ role: 'user', text: 'x' }])).rejects.toMatchObject({ kind: 'model' });
+    vi.stubGlobal('fetch', reply({ error: { message: 'No endpoints found matching your data policy (Free model publication)' } }, 404));
+    await expect(ai.complete('S', [{ role: 'user', text: 'x' }])).rejects.toMatchObject({ kind: 'privacy' });
+  });
+
+  it('falls back to the next model when one is unavailable', async () => {
+    const calls: string[] = [];
+    vi.stubGlobal('fetch', vi.fn(async (_u: string, init: RequestInit) => {
+      const model = JSON.parse(String(init.body)).model;
+      calls.push(model);
+      return model === 'nvidia/nemotron-ultra:free'
+        ? new Response(JSON.stringify({ error: { message: 'model not found' } }), { status: 404 })
+        : new Response(JSON.stringify({ choices: [{ message: { content: 'from backup' }, finish_reason: 'stop' }] }), { status: 200 });
+    }));
+    expect((await ai.complete('S', [{ role: 'user', text: 'x' }])).text).toBe('from backup');
+    expect(calls).toEqual(['nvidia/nemotron-ultra:free', 'nvidia/nemotron-text:free']);
   });
 
   it('flags cut-off answers and maps errors', async () => {
