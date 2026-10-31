@@ -25,10 +25,10 @@ services:
         sync: false
       # Text questions. Paste the exact model id from openrouter.ai/models (comma-separated = fallbacks).
       - key: OPENROUTER_MODEL
-        value: nvidia/nemotron-3-ultra-550b-a55b:free,nvidia/nemotron-nano-9b-v2:free
+        value: nvidia/nemotron-3-ultra-550b-a55b:free,nvidia/nemotron-3.5-super-vl:free,openrouter/free
       # Chart reviews (images) need a vision model.
       - key: OPENROUTER_VISION_MODEL
-        value: nvidia/nemotron-nano-12b-v2-vl:free
+        value: nvidia/nemotron-3.5-super-vl:free,google/gemma-4-31b-it:free,openrouter/free
       - key: ANTHROPIC_API_KEY
         sync: false
       - key: AI_DAILY_LIMIT

@@ -17,8 +17,9 @@ export const config = {
   openrouterKey: process.env.OPENROUTER_API_KEY || '',
   // Comma-separated list = fallback chain (OpenRouter tries them in order).
   // Text questions use OPENROUTER_MODEL; chart reviews (images) use OPENROUTER_VISION_MODEL.
-  openrouterModels: list(process.env.OPENROUTER_MODEL || 'nvidia/nemotron-3-ultra-550b-a55b:free,nvidia/nemotron-nano-9b-v2:free'),
-  openrouterVisionModels: list(process.env.OPENROUTER_VISION_MODEL || 'nvidia/nemotron-nano-12b-v2-vl:free'),
+  // Free models come and go, so each list ends with OpenRouter's free auto-router as a last resort.
+  openrouterModels: list(process.env.OPENROUTER_MODEL || 'nvidia/nemotron-3-ultra-550b-a55b:free,nvidia/nemotron-3.5-super-vl:free,openrouter/free'),
+  openrouterVisionModels: list(process.env.OPENROUTER_VISION_MODEL || 'nvidia/nemotron-3.5-super-vl:free,google/gemma-4-31b-it:free,openrouter/free'),
   aiDailyLimit: Number(process.env.AI_DAILY_LIMIT || 20),
   aiMaxTokens: Number(process.env.AI_MAX_TOKENS || 1500),
   aiModel: process.env.AI_MODEL || 'claude-opus-5-5',

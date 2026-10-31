@@ -76,7 +76,7 @@ Push to `main` and Render auto-deploys (`autoDeploy: true`). Each deploy restart
 2. In Render → your service → **Environment**, set `OPENROUTER_API_KEY` to that key.
 3. Models (copy exact ids from https://openrouter.ai/models; they're shown under each model's name):
    - `OPENROUTER_MODEL`: used for normal questions, e.g. a free NVIDIA Nemotron model. Comma-separated = fallback chain.
-   - `OPENROUTER_VISION_MODEL`: used only for chart-screenshot reviews; must accept images (default `nvidia/nemotron-nano-12b-v2-vl:free`).
+   - `OPENROUTER_VISION_MODEL`: used only for chart-screenshot reviews; must accept images (default `nvidia/nemotron-3.5-super-vl:free,google/gemma-4-31b-it:free,openrouter/free`).
    Free models have daily request caps on OpenRouter (higher once you've added a little credit). If the Mentor says it's busy, wait a minute.
 4. Save; Render redeploys. If both keys are set, OpenRouter is used.
 
