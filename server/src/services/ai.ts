@@ -59,7 +59,7 @@ async function openRouter(system: string, turns: ChatTurn[]): Promise<AiResult> 
   let lastError: AiError | null = null;
   for (const model of models) {
     try {
-      return await openRouterOnce(model, messages);
+      return await openRouterOnce(model, messages, hasImage);
     } catch (e) {
       if (!(e instanceof AiError) || e.kind === 'auth' || e.kind === 'credits') throw e;
       console.warn(`[mentor] OpenRouter model ${model} failed: ${e.message}`);
@@ -69,7 +69,7 @@ async function openRouter(system: string, turns: ChatTurn[]): Promise<AiResult> 
   throw lastError ?? new AiError('other', 'No OpenRouter model configured.');
 }
 
-async function openRouterOnce(model: string, messages: unknown[]): Promise<AiResult> {
+async function openRouterOnce(model: string, messages: unknown[], hasImage: boolean): Promise<AiResult> {
   let res: Response;
   try {
     res = await fetch('https://openrouter.ai/api/v1/chat/completions', {
@@ -79,7 +79,14 @@ async function openRouterOnce(model: string, messages: unknown[]): Promise<AiRes
         'Content-Type': 'application/json',
         'X-Title': 'Market Quest',
       },
-      body: JSON.stringify({ model, messages, max_tokens: config.aiMaxTokens }),
+      body: JSON.stringify({
+        model,
+        messages,
+        // Image reviews need extra room: "thinking" models can use most of the budget before answering.
+        max_tokens: hasImage ? Math.max(config.aiMaxTokens, 4000) : config.aiMaxTokens,
+        // Keep thinking short and out of the reply (ignored by models that don't think).
+        reasoning: { effort: 'low', exclude: true },
+      }),
       signal: AbortSignal.timeout(60_000),
     });
   } catch {
@@ -100,9 +107,14 @@ async function openRouterOnce(model: string, messages: unknown[]): Promise<AiRes
   const choice = data?.choices?.[0];
   const content = choice?.message?.content;
   const text = typeof content === 'string' ? content : Array.isArray(content) ? content.map((c: any) => c?.text ?? '').join('') : '';
+  // Some models wrap private reasoning in <think> tags; keep only what comes after it.
+  const answer = (text.includes('</think>') ? text.slice(text.lastIndexOf('</think>') + 8) : text.replace(/<think>[\s\S]*$/, '')).trim();
+  if (!answer) {
+    // Usually a thinking model that used the whole budget before answering: try the next model.
+    throw new AiError('model', `${model} returned an empty answer (finish_reason: ${choice?.finish_reason ?? 'unknown'})`);
+  }
   return {
-    // Some models wrap private reasoning in <think> tags; never show that to the trader.
-    text: text.replace(/<think>[\s\S]*?(<\/think>|$)/g, '').trim(),
+    text: answer,
     truncated: choice?.finish_reason === 'length',
     refused: choice?.finish_reason === 'content_filter',
     tokens: (data?.usage?.prompt_tokens ?? 0) + (data?.usage?.completion_tokens ?? 0),

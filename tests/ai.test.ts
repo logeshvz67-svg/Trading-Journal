@@ -34,7 +34,7 @@ describe('OpenRouter mentor provider', () => {
     expect(body.model).toBe('nvidia/nemotron-vl:free'); // image -> vision model
     expect(body.models).toBeUndefined();
     expect(body.messages[0].content).toBe('SYS\n/no_think');
-    expect(body.max_tokens).toBe(900);
+    expect(body.max_tokens).toBe(4000); // image reviews get extra room
     expect(body.messages[1].content[1]).toEqual({ type: 'image_url', image_url: { url: 'data:image/jpeg;base64,QUJD' } });
   });
 
@@ -53,6 +53,27 @@ describe('OpenRouter mentor provider', () => {
     await expect(ai.complete('S', [{ role: 'user', text: 'x' }])).rejects.toMatchObject({ kind: 'model' });
     vi.stubGlobal('fetch', reply({ error: { message: 'No endpoints found matching your data policy (Free model publication)' } }, 404));
     await expect(ai.complete('S', [{ role: 'user', text: 'x' }])).rejects.toMatchObject({ kind: 'privacy' });
+  });
+
+  it('treats an empty (all-thinking) answer as a failure and tries the next model', async () => {
+    const calls: string[] = [];
+    vi.stubGlobal('fetch', vi.fn(async (_u: string, init: RequestInit) => {
+      const body = JSON.parse(String(init.body));
+      calls.push(body.model);
+      expect(body.reasoning).toEqual({ effort: 'low', exclude: true });
+      return calls.length === 1
+        ? new Response(JSON.stringify({ choices: [{ message: { content: '<think>looking at candles' }, finish_reason: 'length' }] }), { status: 200 })
+        : new Response(JSON.stringify({ choices: [{ message: { content: 'Uptrend: higher highs and higher lows.' }, finish_reason: 'stop' }] }), { status: 200 });
+    }));
+    expect((await ai.complete('S', [{ role: 'user', text: 'x' }])).text).toBe('Uptrend: higher highs and higher lows.');
+    expect(calls).toEqual(['nvidia/nemotron-ultra:free', 'nvidia/nemotron-text:free']);
+  });
+
+  it('gives image reviews a bigger token budget', async () => {
+    const fetchMock = reply({ choices: [{ message: { content: 'ok' }, finish_reason: 'stop' }] });
+    vi.stubGlobal('fetch', fetchMock);
+    await ai.complete('S', [{ role: 'user', text: 'Review', imageBase64Jpeg: 'QUJD' }]);
+    expect(JSON.parse(String((fetchMock.mock.calls[0] as unknown as [string, RequestInit])[1].body)).max_tokens).toBe(4000);
   });
 
   it('falls back to the next model when one is unavailable', async () => {
