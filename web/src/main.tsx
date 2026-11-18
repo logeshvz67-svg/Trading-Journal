@@ -26,6 +26,7 @@ function Boot() {
   const [attempt, setAttempt] = useState(0);
   const [failed, setFailed] = useState(false);
   const [run, setRun] = useState(0);
+  const [dbPaused, setDbPaused] = useState(false);
 
   useEffect(() => {
     let alive = true;
@@ -34,6 +35,15 @@ function Boot() {
       const ok = await wakeServer((a) => alive && setAttempt(a));
       if (!alive) return;
       if (!ok) return setFailed(true);
+      // The API is awake; check the database too (free Supabase projects pause after 7 idle days).
+      try {
+        const db = await fetch('/health/db', { cache: 'no-store' });
+        if (!alive) return;
+        setDbPaused(db.status === 503);
+        if (db.status === 503) return;
+      } catch {
+        /* ignore: the login screen reports connection problems */
+      }
       try {
         setSb(await initSupabase());
       } catch {
@@ -45,7 +55,7 @@ function Boot() {
     };
   }, [run]);
 
-  if (!sb) return <WakeScreen attempt={attempt} failed={failed} onRetry={() => setRun((r) => r + 1)} />;
+  if (!sb) return <WakeScreen attempt={attempt} failed={failed} dbPaused={dbPaused} onRetry={() => setRun((r) => r + 1)} />;
   return (
     <StoreProvider sb={sb}>
       <App />

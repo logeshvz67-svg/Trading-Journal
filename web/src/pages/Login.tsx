@@ -4,6 +4,9 @@ import { COPY } from '@shared/copy';
 import { useStore } from '../store';
 import { Banner, Field } from '../components/ui';
 
+const DB_PAUSED =
+  "Can't reach the login service. If you haven't used the app for a week, your free Supabase project is probably paused: open supabase.com → your project → Restore project, wait 2-3 minutes, then try again.";
+
 export default function Login() {
   const { sb } = useStore();
   const [mode, setMode] = useState<'in' | 'up' | 'reset'>('in');
@@ -33,7 +36,9 @@ export default function Login() {
         setInfo('If that email has an account, a reset link is on its way. It signs you in; then set a new password in Settings.');
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Sign in failed.');
+      const msg = err instanceof Error ? err.message : 'Sign in failed.';
+      // "Failed to fetch" here almost always means the free Supabase project was paused after 7 idle days.
+      setError(/failed to fetch|networkerror|load failed/i.test(msg) ? DB_PAUSED : msg);
     } finally {
       setBusy(false);
     }
