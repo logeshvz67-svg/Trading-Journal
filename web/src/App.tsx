@@ -4,6 +4,7 @@ import { useStore } from './store';
 import { Layout } from './components/Layout';
 import { Spinner, ToastHost } from './components/ui';
 import Login from './pages/Login';
+import { ErrorBoundary } from './components/ErrorBoundary';
 
 const Onboarding = lazy(() => import('./pages/Onboarding'));
 const Dashboard = lazy(() => import('./pages/Dashboard'));
@@ -34,6 +35,7 @@ export function App() {
   return (
     <BrowserRouter>
       <ToastHost />
+      <ErrorBoundary>
       <Suspense fallback={<div className="mx-auto max-w-3xl px-4"><Spinner /></div>}>
         {!session ? (
           <Routes>
@@ -78,6 +80,7 @@ export function App() {
           </Routes>
         )}
       </Suspense>
+      </ErrorBoundary>
     </BrowserRouter>
   );
 }

@@ -1,5 +1,5 @@
 import { INSTRUMENT_PRESETS, type Direction, type InstrumentType } from '@shared/constants';
-import { big, money, positionSize, rewardRisk } from '@shared/risk';
+import { big, distanceInPips, money, positionSize, rewardRisk } from '@shared/risk';
 import { Field } from './ui';
 
 export interface ForgeValues {
@@ -46,7 +46,8 @@ export function ForgeCalc({
   const preset = INSTRUMENT_PRESETS.find((p) => p.symbol === value.pair);
   const size = positionSize({ balance, riskPercent: value.risk_percent, entry: value.entry, stopLoss: value.stop_loss, pipSize: value.pip_size, pipValue: value.pip_value });
   const rr = rewardRisk(value.direction, value.entry, value.stop_loss, value.take_profit);
-  const tpPips = big(value.entry) && big(value.take_profit) && big(value.pip_size) ? big(value.take_profit)!.minus(big(value.entry)!).abs().div(big(value.pip_size)!) : null;
+  // distanceInPips returns null for a zero/blank pip size (e.g. while typing "0.0001"), so we never divide by zero.
+  const tpPips = distanceInPips(value.take_profit, value.entry, value.pip_size);
 
   // "What if I lose": the dollar risk of the lots you will actually use.
   const lotsUsed = big(value.lot_size) ?? (size ? big(size.lots) : null);

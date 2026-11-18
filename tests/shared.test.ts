@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { positionSize, rewardRisk, riskForLots, estimatePnl, rMultiple } from '@shared/risk';
+import { positionSize, rewardRisk, riskForLots, estimatePnl, rMultiple, distanceInPips } from '@shared/risk';
 import { armorCheck, type ArmorContext } from '@shared/armor';
 import { closeXpLines, openXpLines, levelForXp, xpForLevel, rankForLevel, BROKEN_PLAN_CAP } from '@shared/xp';
 import { startOfLocalDay, localDateKey, startOfNextLocalDay } from '@shared/time';
@@ -28,6 +28,13 @@ describe('risk math', () => {
     expect(rewardRisk('long', '1.1000', '1.0980', '1.1040')!.toString()).toBe('2');
     expect(rewardRisk('long', '1.1000', '1.1020', '1.1040')).toBeNull();
     expect(rewardRisk('short', '1.1000', '1.1020', '1.0940')!.toString()).toBe('3');
+  });
+  it('never throws on a zero or half-typed pip size (black-screen bug)', () => {
+    for (const pip of ['0', '0.0', '0.00', '', '.', '0.']) {
+      expect(distanceInPips('1.1040', '1.1000', pip)).toBeNull();
+      expect(positionSize({ balance: '5000', riskPercent: '1', entry: '1.1', stopLoss: '1.098', pipSize: pip, pipValue: '10' })).toBeNull();
+      expect(estimatePnl('long', '1.1', '1.104', '0.25', pip, '10')).toBeNull();
+    }
   });
   it('pnl and R', () => {
     expect(estimatePnl('short', '1.1000', '1.0960', '0.25', '0.0001', '10')).toBe('100.00');
